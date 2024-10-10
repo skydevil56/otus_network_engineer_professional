@@ -1,5 +1,9 @@
 # Configure Router-on-a-Stick Inter-VLAN Routing
 
+## Задание
+
+[Ссылка на документ](media/lab01.docx)
+
 ## Топология
 
 ![a](media/lab01_1.PNG)
