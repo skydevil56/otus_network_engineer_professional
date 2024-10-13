@@ -8,6 +8,8 @@
 
 ![a](media/lab01_1.PNG)
 
+[Схема для инпорта в PNETlab](media/otus_cource_lab1_vlan_exports_pnetlab_export-20241013-155626.zip)
+
 ## Версии ПО
 
 - Роутеры - Cisco IOS Software [Dublin], Linux Software (X86_64BI_LINUX-ADVENTERPRISEK9-M), Version  17.12.1, RELEASE SOFTWARE (fc5)
