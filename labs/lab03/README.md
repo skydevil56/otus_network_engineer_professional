@@ -206,7 +206,112 @@ User name
 
 ## Проверка IPv6
 
+### Проверим получение сетевых настроек (IPv6) при помощи SLAAC на устройстве `PC-A`
 
+```
+root@PC-A:~# cat /etc/network/interfaces
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug ens3
+iface ens3 inet dhcp
+iface ens3 inet6 auto 
+```
+
+```
+root@PC-A:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 100
+0
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default 
+qlen 1000
+    link/ether 50:34:2e:00:29:00 brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 192.168.1.6/26 brd 192.168.1.63 scope global dynamic ens3
+       valid_lft 216632sec preferred_lft 216632sec
+    inet6 2001:db8:acad:1:5234:2eff:fe00:2900/64 scope global dynamic mngtmpaddr 
+       valid_lft 2591968sec preferred_lft 604768sec
+    inet6 fe80::5234:2eff:fe00:2900/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+```
+root@PC-A:~# ip -6 r
+2001:db8:acad:1::/64 dev ens3 proto kernel metric 256 expires 2591959sec pref medium
+fe80::/64 dev ens3 proto kernel metric 256 pref medium
+default via fe80::1 dev ens3 proto ra metric 1024 expires 1759sec hoplimit 64 pref medium
+```
+
+
+Видно, что адрес и маршрут по умолчанию успешно получены.
+
+### Проверим получение сетевых настроек (IPv6) при помощи SLAAC + stateless DHCPv6 на устройстве `PC-A`
+
+```
+root@PC-A:~# cat /etc/network/interfaces
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug ens3
+iface ens3 inet dhcp
+iface ens3 inet6 auto 
+ # Use stateless DHCPv6
+ dhcp 1
+```
+
+```
+root@PC-A:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group defaul
+t qlen 1000
+    link/ether 50:34:2e:00:29:00 brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 192.168.1.6/26 brd 192.168.1.63 scope global dynamic ens3
+       valid_lft 216770sec preferred_lft 216770sec
+    inet6 2001:db8:acad:1:5234:2eff:fe00:2900/64 scope global dynamic mngtmpaddr 
+       valid_lft 2591959sec preferred_lft 604759sec
+    inet6 fe80::5234:2eff:fe00:2900/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+```
+root@PC-A:~# ip -6 r
+2001:db8:acad:1::/64 dev ens3 proto kernel metric 256 expires 2591949sec pref medium
+fe80::/64 dev ens3 proto kernel metric 256 pref medium
+default via fe80::1 dev ens3 proto ra metric 1024 expires 1749sec hoplimit 64 pref medium
+```
+
+```
+root@PC-A:~# cat /etc/resolv.conf 
+search otus-lab.com.
+nameserver 2001:db8:acad::254
+```
+
+Видно, что адрес, маршрут по умолчанию, DNS сервер и domain-name успешно получены.
 
 ## Конфигурации устройств
 
