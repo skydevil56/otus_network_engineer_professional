@@ -307,11 +307,27 @@ default via fe80::1 dev ens3 proto ra metric 1024 expires 1749sec hoplimit 64 pr
 
 ```
 root@PC-A:~# cat /etc/resolv.conf 
-search otus-lab.com.
+search otus-labv6-stateless.com.
 nameserver 2001:db8:acad::254
 ```
 
-Видно, что адрес, маршрут по умолчанию, DNS сервер и domain-name успешно получены.
+```
+R1#show ipv6 dhcp statistics 
+Messages received  41
+Messages sent  41
+Messages discarded  0
+Messages could not be sent  0
+
+Messages  Received
+SOLICIT               35
+INFORMATION-REQUEST   6
+
+Messages  Sent
+ADVERTISE             35
+REPLY                 6
+```
+
+Видно, что адрес, маршрут по умолчанию, DNS сервер и domain-name успешно получены. Маршрутизатор `R1` отвечает по DHCPv6.
 
 ## Конфигурации устройств
 
