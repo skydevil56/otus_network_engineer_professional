@@ -20,7 +20,7 @@
 - Коммутаторы - Cisco IOS Software [Dublin], Linux Software (X86_64BI_LINUX_L2-ADVENTERPRISEK9-M), Version 17.12.1, RELEASE SOFTWARE (fc5)
 - ПК - Debian 12 x86_64
 
-## Таблица №1. Адресация
+## Таблица №1. Адресация (IPv4)
 
 Device | Interface	| IP Address | Subnet Mask	| Default Gateway
 --- | --- | --- | --- | ---
@@ -36,7 +36,23 @@ S2 | VLAN 1	| 192.168.1.98 | 255.255.255.240 (/28)| 192.168.1.97
 PC-A |	NIC | DHCP | DHCP | DHCP
 PC-B |	NIC | DHCP | DHCP | DHCP
 
-## Таблица №2. VLAN
+## Таблица №2. Адресация (IPv6)
+
+Device | Interface	| IPv6 Address | Default Gateway
+--- | --- | --- | --- 
+R1 | e0/0 | 2001:db8:acad:2::1/64, fe80::1 | N/A
+R1 | e0/1 | N/A | N/A
+R1 | e0/1.100 | 2001:db8:acad:1::1/64, fe80::1 | N/A
+R1 | e0/1.200 | N/A | N/A 
+R1 | e0/1.1000 | N/A	| N/A
+R2 | e0/0	| 2001:db8:acad:2::2/64, fe80::2	| N/A
+R2 | e0/1	| 2001:db8:acad:3::1 /64, fe80::1 | N/A
+S1 | VLAN 200 |	N/A | N/A 
+S2 | VLAN 1	| N/A | N/A
+PC-A |	NIC | DHCP | DHCP
+PC-B |	NIC | DHCP | DHCP
+
+## Таблица №3. VLAN
 
 VLAN | Name	| Interface Assigned
 --- | --- | ---
@@ -46,316 +62,178 @@ VLAN | Name	| Interface Assigned
 999	| Parking |	S1: e0/2-3
 1000 | Native | N/A
 
-## Проверка IP связности коммутаторов в рамках VLAN1
+## Проверка IPv4
 
-### Проверим, что с коммутатора S1 доступны S2, S3:
-
+### Проверим получение сетевых настроек (IPv4) на устройстве `PC-A`
 ```
-S1#sh ip interface brief 
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  administratively down down    
-Ethernet0/1            unassigned      YES unset  up                    up      
-Ethernet0/2            unassigned      YES unset  up                    up      
-Ethernet0/3            unassigned      YES unset  administratively down down    
-Ethernet1/0            unassigned      YES unset  down                  down    
-Ethernet1/1            unassigned      YES unset  down                  down    
-Ethernet1/2            unassigned      YES unset  down                  down    
-Ethernet1/3            unassigned      YES unset  down                  down    
-Vlan1                  192.168.1.1     YES manual up                    up      
-
-S1#show vlan brief 
-
-VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active    Et0/0, Et0/3, Et1/0, Et1/1
-                                                Et1/2, Et1/3
-1002 fddi-default                     act/unsup 
-1003 token-ring-default               act/unsup 
-1004 fddinet-default                  act/unsup 
-1005 trnet-default                    act/unsup 
-
-S1#ping 192.168.1.2
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.1.2, timeout is 2 seconds:
-.!!!!
-Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/1 ms
-
-S1#ping 192.168.1.3
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.1.3, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
-
-```
-
-### Проверим, что с коммутатора S3 доступен S2:
-
-```
-S3#show ip interface brief 
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  down                  down    
-Ethernet0/1            unassigned      YES unset  down                  down    
-Ethernet0/2            unassigned      YES unset  up                    up      
-Ethernet0/3            unassigned      YES unset  administratively down down    
-Ethernet1/0            unassigned      YES unset  administratively down down    
-Ethernet1/1            unassigned      YES unset  up                    up      
-Ethernet1/2            unassigned      YES unset  down                  down    
-Ethernet1/3            unassigned      YES unset  down                  down    
-Vlan1                  192.168.1.3     YES manual up                    up      
-
-S3#show vlan brief 
-
-VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active    Et0/0, Et0/1, Et0/3, Et1/0
-                                                Et1/2, Et1/3
-1002 fddi-default                     act/unsup 
-1003 token-ring-default               act/unsup 
-1004 fddinet-default                  act/unsup 
-1005 trnet-default                    act/unsup
-
-S3#ping 192.168.1.2
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.1.2, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
-
-```
-
-## Выключим интерфейсы условного внутреннего контура (зеленый цвет на схеме) и выполним анализ вывода команды `show spanning-tree`
-
-```
-S1(config)#interface range ethernet 0/3, ethernet 0/0
-S1(config-if-range)#shutdown 
-
-S1#show ip interface brief 
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  administratively down down    
-Ethernet0/1            unassigned      YES unset  up                    up      
-Ethernet0/2            unassigned      YES unset  up                    up      
-Ethernet0/3            unassigned      YES unset  administratively down down    
-Ethernet1/0            unassigned      YES unset  down                  down    
-Ethernet1/1            unassigned      YES unset  down                  down    
-Ethernet1/2            unassigned      YES unset  down                  down    
-Ethernet1/3            unassigned      YES unset  down                  down    
-Vlan1                  192.168.1.1     YES manual up                    up      
+root@PC-A:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 
+1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group defau
+lt qlen 1000
+    link/ether 50:34:2e:00:29:00 brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 192.168.1.6/26 brd 192.168.1.63 scope global dynamic ens3
+       valid_lft 217544sec preferred_lft 217544sec
+    inet6 fe80::5234:2eff:fe00:2900/64 scope link 
+       valid_lft forever preferred_lft forever
 ```
 
 ```
-S1#show spanning-tree 
-
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             This bridge is the root
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    1      (priority 0 sys-id-ext 1)
-             Address     aabb.cc00.0100
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/1               Desg FWD 100       128.2    P2p 
-Et0/2               Desg FWD 100       128.3    P2p 
+root@PC-A:~# ip r
+default via 192.168.1.1 dev ens3 
+192.168.1.0/26 dev ens3 proto kernel scope link src 192.168.1.6 
 ```
 
 ```
-S2(config)#interface range ethernet 0/3, ethernet 1/0
-S2(config-if-range)#shutdown 
+root@PC-A:~# ping 192.168.1.1 -c 4
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+64 bytes from 192.168.1.1: icmp_seq=1 ttl=255 time=1.08 ms
+64 bytes from 192.168.1.1: icmp_seq=2 ttl=255 time=1.03 ms
+64 bytes from 192.168.1.1: icmp_seq=3 ttl=255 time=1.08 ms
+64 bytes from 192.168.1.1: icmp_seq=4 ttl=255 time=1.09 ms
 
-S2#show ip interface brief 
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  administratively down down    
-Ethernet0/1            unassigned      YES unset  up                    up      
-Ethernet0/2            unassigned      YES unset  down                  down    
-Ethernet0/3            unassigned      YES unset  administratively down down    
-Ethernet1/0            unassigned      YES unset  administratively down down    
-Ethernet1/1            unassigned      YES unset  down                  down    
-Ethernet1/2            unassigned      YES unset  administratively down down    
-Ethernet1/3            unassigned      YES unset  up                    up      
-Vlan1                  192.168.1.2     YES manual up                    up  
+--- 192.168.1.1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+rtt min/avg/max/mdev = 1.033/1.072/1.093/0.023 ms
+```
+
+### Проверим получение сетевых настроек (IPv4) на устройстве `PC-B`
+
+```
+root@PC-B:~# ifup ens3 
+Internet Systems Consortium DHCP Client 4.4.3-P1
+Copyright 2004-2022 Internet Systems Consortium.
+All rights reserved.
+For info, please visit https://www.isc.org/software/dhcp/
+
+Listening on LPF/ens3/50:77:d8:00:2a:00
+Sending on   LPF/ens3/50:77:d8:00:2a:00
+Sending on   Socket/fallback
+DHCPDISCOVER on ens3 to 255.255.255.255 port 67 interval 4
+DHCPOFFER of 192.168.1.102 from 192.168.1.97
+DHCPREQUEST for 192.168.1.102 on ens3 to 255.255.255.255 port 67
+DHCPACK of 192.168.1.102 from 192.168.1.97
+bound to 192.168.1.102 -- renewal in 84819 seconds.
 ```
 
 ```
-S2#show spanning-tree 
-
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             Cost        100
-             Port        2 (Ethernet0/1)
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
-             Address     aabb.cc00.0200
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/1               Root FWD 100       128.2    P2p 
-Et1/3               Desg FWD 100       128.8    P2p 
-
+root@PC-B:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 
+1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group defau
+lt qlen 1000
+    link/ether 50:77:d8:00:2a:00 brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 192.168.1.102/28 brd 192.168.1.111 scope global dynamic ens3
+       valid_lft 217721sec preferred_lft 217721sec
+    inet6 fe80::5277:d8ff:fe00:2a00/64 scope link 
+       valid_lft forever preferred_lft forever
 ```
 
 ```
-S3(config)#interface range ethernet 0/0, ethernet 1/2
-S3(config-if-range)#shutdown
-
-S3#sh ip interface brief 
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  administratively down down    
-Ethernet0/1            unassigned      YES unset  down                  down    
-Ethernet0/2            unassigned      YES unset  up                    up      
-Ethernet0/3            unassigned      YES unset  administratively down down    
-Ethernet1/0            unassigned      YES unset  administratively down down    
-Ethernet1/1            unassigned      YES unset  up                    up      
-Ethernet1/2            unassigned      YES unset  administratively down down    
-Ethernet1/3            unassigned      YES unset  down                  down    
-Vlan1                  192.168.1.3     YES manual up                    up      
+root@PC-B:~# ip r
+default via 192.168.1.97 dev ens3 
+192.168.1.96/28 dev ens3 proto kernel scope link src 192.168.1.102 
 ```
 
 ```
-S3#show spanning-tree 
+root@PC-B:~# ping 192.168.1.97 -c 4
+PING 192.168.1.97 (192.168.1.97) 56(84) bytes of data.
+64 bytes from 192.168.1.97: icmp_seq=1 ttl=255 time=1.07 ms
+64 bytes from 192.168.1.97: icmp_seq=2 ttl=255 time=1.03 ms
+64 bytes from 192.168.1.97: icmp_seq=3 ttl=255 time=1.03 ms
+64 bytes from 192.168.1.97: icmp_seq=4 ttl=255 time=0.999 ms
 
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             Cost        100
-             Port        3 (Ethernet0/2)
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
-             Address     aabb.cc00.0300
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/2               Root FWD 100       128.3    P2p 
-Et1/1               Altn BLK 100       128.6    P2p 
+--- 192.168.1.97 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3005ms
+rtt min/avg/max/mdev = 0.999/1.031/1.067/0.024 ms
 ```
 
-Видно, что root коммутатор это `S1`, потому что при одинаковом приоритете `32769` на всех коммутаторах у него минимальное значение MAC адреса `aabb.cc00.0100`
-
-## При помощи изменения стоимости (`cost`) до корневого коммутатора на порту `e0/1` коммутатора `S2` изменим роль порта `e1/3` с Designated на Alternative
+### Проверим информацию о работе DHCP сервера (IPv4) на устройстве `R1`
 
 ```
-S2#show spanning-tree 
+R1#show ip dhcp pool    
 
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             Cost        101
-             Port        2 (Ethernet0/1)
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+Pool R1_Client_LAN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 1
+ Excluded addresses             : 5
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.1.7          192.168.1.1      - 192.168.1.62      1     / 5     / 62   
 
-  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
-             Address     aabb.cc00.0200
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/1               Root FWD 101       128.2    P2p 
-Et1/3               Altn BLK 100       128.8    P2p 
-
-```
-
-## Включим интерфейсы условного внутреннего контура (зеленый цвет на схеме) и выполним анализ вывода команды `show spanning-tree`
-
-```
-S1(config)#interface range e0/3,e0/0
-S1(config-if-range)#no shutdown 
-
-S1#sh spanning-tree 
-
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             This bridge is the root
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    1      (priority 0 sys-id-ext 1)
-             Address     aabb.cc00.0100
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/0               Desg FWD 100       128.1    P2p 
-Et0/1               Desg FWD 100       128.2    P2p 
-Et0/2               Desg FWD 100       128.3    P2p 
-Et0/3               Desg FWD 100       128.4    P2p 
+Pool R2_Client_LAN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 14
+ Leased addresses               : 1
+ Excluded addresses             : 5
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.1.103        192.168.1.97     - 192.168.1.110     1     / 5     / 14   
 ```
 
 ```
-
-S2(config)#interface range ethernet 0/0,e1/2
-S2(config-if-range)#no shutdown 
-S2(config-if-range)#end
-
-S2#show spanning-tree 
-
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             Cost        100
-             Port        1 (Ethernet0/0)
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
-             Address     aabb.cc00.0200
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/0               Root FWD 100       128.1    P2p 
-Et0/1               Altn BLK 100       128.2    P2p 
-Et1/2               Desg FWD 100       128.7    P2p 
-Et1/3               Desg FWD 100       128.8    P2p               
-
+R1#show ip dhcp binding 
+Bindings from all pools not associated with VRF:
+IP address      Client-ID/ Lease expiration Type       State      Interface
+Hardware address/
+User name
+192.168.1.6     ff2e.0029.0000.0100.    Oct 22 2024 04:53 AM    Automatic  Active     Ethernet0/1.100
+                012e.a699.7750.342e.
+                0029.00
+192.168.1.102   ffd8.002a.0000.0100.    Oct 22 2024 05:08 AM    Automatic  Active     Ethernet0/0
+                012e.a69c.5050.77d8.
+                002a.00
 ```
 
-```
+Видно, что оба устройства `PC-A` и `PC-B` успешно получили сетевые настройки от DHCP сервера на `R1`.
 
-S3(config)#interface range ethernet 0/3,e1/0 
-S3(config-if-range)#no shutdown 
+## Проверка IPv6
 
-S3#show spanning-tree 
 
-VLAN0001
-  Spanning tree enabled protocol rstp
-  Root ID    Priority    1
-             Address     aabb.cc00.0100
-             Cost        100
-             Port        3 (Ethernet0/2)
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-
-  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
-             Address     aabb.cc00.0300
-             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  300 sec
-
-Interface           Role Sts Cost      Prio.Nbr Type
-------------------- ---- --- --------- -------- --------------------------------
-Et0/2               Root FWD 100       128.3    P2p 
-Et0/3               Altn BLK 100       128.4    P2p 
-Et1/0               Altn BLK 100       128.5    P2p 
-Et1/1               Altn BLK 100       128.6    P2p 
-
-```
 
 ## Конфигурации устройств
+
+### PC-A
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
+
+
+```
+</details>
+
+### PC-B
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
+
+
+```
+</details>
+
 
 ### S1
 
@@ -363,135 +241,8 @@ Et1/1               Altn BLK 100       128.6    P2p
   <summary>Конфигурация</summary>
 
 ```
-version 17.12
-service timestamps debug datetime msec
-service timestamps log datetime msec
-service password-encryption
-!
-hostname S1
-!
-boot-start-marker
-boot-end-marker
-!
-!
-no aaa new-model
-!
-!
-!
-no ip icmp rate-limit unreachable
-!
-!
-!         
-!
-!
-!
-!
-!
-!
-!
-ip audit notify log
-ip audit po max-events 100
-no ip domain lookup
-ip cef
-login on-success log
-no ipv6 cef
-!
-!
-!
-!
-!
-!
-!
-vtp version 1
-multilink bundle-name authenticated
-!         
-!
-!
-!
-memory free low-watermark processor 80589
-!
-!
-spanning-tree mode rapid-pvst
-spanning-tree extend system-id
-spanning-tree vlan 1 priority 0
-enable secret 9 $9$lr6yzy7y.TXWCU$5DznBmaO7c6wL.t6VS0yYlJf.JCN4SjyeSelqdgbKU6
-!
-!
-vlan internal allocation policy ascending
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-interface Ethernet0/0
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/1
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/2
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/3
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet1/0
-!
-interface Ethernet1/1
-!
-interface Ethernet1/2
-!
-interface Ethernet1/3
-!
-interface Vlan1
- ip address 192.168.1.1 255.255.255.0
-!
-ip forward-protocol nd
-!
-!
-ip tcp synwait-time 5
-ip http server
-ip http secure-server
-ip ssh bulk-mode 131072
-!
-!
-!
-!
-!
-!
-control-plane
-!
-!
-banner motd ^CC 
-Unauthorized access is strictly prohibited and prosecuted to the full extent of the law
-.
-^C        
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- password 7 030752180500
- logging synchronous
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
-line vty 0 4
- password 7 01100F175804
- login
- transport input ssh
-!
-!
-end
+
+
 
 ```
 </details>
@@ -503,284 +254,30 @@ end
 
 ```
 
-!
-! Last configuration change at 18:38:29 UTC Fri Oct 18 2024
-!
-version 17.12
-service timestamps debug datetime msec
-service timestamps log datetime msec
-service password-encryption
-!
-hostname S2
-!
-boot-start-marker
-boot-end-marker
-!
-!
-no aaa new-model
-!
-!
-!
-no ip icmp rate-limit unreachable
-!
-!
-!         
-!         
-!         
-!
-!
-!
-!
-!
-ip audit notify log
-ip audit po max-events 100
-no ip domain lookup
-ip cef
-login on-success log
-no ipv6 cef
-!
-!
-!
-!
-!
-!
-!
-vtp version 1
-multilink bundle-name authenticated
-!
-!
-!         
-!
-memory free low-watermark processor 80589
-!
-!
-spanning-tree mode rapid-pvst
-spanning-tree extend system-id
-enable secret 9 $9$qI1Hoiel1hpnq.$yOOCCZS.pkWhEM2xUvbgCzQXFq84y7kUEcXC3Y9/hNQ
-!
-!
-vlan internal allocation policy ascending
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-interface Ethernet0/0
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/1
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/2
-!
-interface Ethernet0/3
- shutdown
-!
-interface Ethernet1/0
- shutdown
-!
-interface Ethernet1/1
-!
-interface Ethernet1/2
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet1/3
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!         
-interface Vlan1
- ip address 192.168.1.2 255.255.255.0
-!
-ip forward-protocol nd
-!
-!
-ip tcp synwait-time 5
-ip http server
-ip http secure-server
-ip ssh bulk-mode 131072
-!
-!
-!
-!
-!
-!
-control-plane
-!
-!
-banner motd ^CC 
-Unauthorized access is strictly prohibited and prosecuted to the full extent of the law
-.
-^C        
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- password 7 14141B180F0B
- logging synchronous
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
-line vty 0 4
- password 7 104D000A0618
- login
- transport input ssh
-!
-!
-end
+
 
 ```
 </details>
 
-### S3
+### R1
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
 
-Current configuration : 1893 bytes
-!
-! Last configuration change at 18:44:48 UTC Fri Oct 18 2024
-!
-version 17.12
-service timestamps debug datetime msec
-service timestamps log datetime msec
-service password-encryption
-!
-hostname S3
-!
-boot-start-marker
-boot-end-marker
-!
-!
-no aaa new-model
-!
-!
-!
-no ip icmp rate-limit unreachable
-!
-!
-!         
-!
-!
-!
-!
-!
-!
-!
-ip audit notify log
-ip audit po max-events 100
-no ip domain lookup
-ip cef
-login on-success log
-no ipv6 cef
-!
-!
-!
-!
-!
-!
-!
-vtp version 1
-multilink bundle-name authenticated
-!         
-!
-!
-!
-memory free low-watermark processor 80589
-!
-!
-spanning-tree mode rapid-pvst
-spanning-tree extend system-id
-enable secret 9 $9$RSFveGI9RsCGok$LEiUi4y0.tqtA/kJP/coVC0KmskGMnn2hTLgDyuFuVI
-!
-!
-vlan internal allocation policy ascending
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-interface Ethernet0/0
- shutdown
-!
-interface Ethernet0/1
-!         
-interface Ethernet0/2
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet0/3
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet1/0
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet1/1
- switchport trunk encapsulation dot1q
- switchport trunk allowed vlan 1
- switchport mode trunk
-!
-interface Ethernet1/2
- shutdown
-!         
-interface Ethernet1/3
-!
-interface Vlan1
- ip address 192.168.1.3 255.255.255.0
-!
-ip forward-protocol nd
-!
-!
-ip tcp synwait-time 5
-ip http server
-ip http secure-server
-ip ssh bulk-mode 131072
-!
-!
-!
-!
-!
-!
-control-plane
-!
-!
-banner motd ^CC 
-Unauthorized access is strictly prohibited and prosecuted to the full extent of the law
-.
-^C
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- password 7 02050D480809
- logging synchronous
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
-line vty 0 4
- password 7 1511021F0725
- login
- transport input ssh
-!
-!
-end
+
+
+```
+</details>
+
+### R2
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
 
 
 ```
