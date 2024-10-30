@@ -715,7 +715,6 @@ interface Ethernet0/3
 interface Vlan1
  ip address 192.168.1.98 255.255.255.240
 !
-ip default-gateway 192.168.1.97
 ip forward-protocol nd
 !
 !
@@ -723,7 +722,7 @@ ip tcp synwait-time 5
 ip http server
 ip http secure-server
 ip ssh bulk-mode 131072
-!
+ip route 0.0.0.0 0.0.0.0 192.168.1.97
 !
 !         
 !
