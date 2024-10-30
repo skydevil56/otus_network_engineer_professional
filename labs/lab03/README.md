@@ -465,8 +465,6 @@ rtt min/avg/max/mdev = 1.946/2.032/2.162/0.082 ms
 ```
 
 !
-! Last configuration change at 16:04:31 UTC Sat Oct 19 2024
-!
 version 17.12
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -509,7 +507,12 @@ no ipv6 cef
 vtp version 1
 multilink bundle-name authenticated
 !         
-!
+crypto pki trustpoint TP-self-signed-67196929
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-67196929
+ revocation-check none
+ rsakeypair TP-self-signed-67196929
+ hash sha256
 !
 !
 memory free low-watermark processor 80589
@@ -518,7 +521,6 @@ memory free low-watermark processor 80589
 spanning-tree mode rapid-pvst
 spanning-tree extend system-id
 enable secret 9 $9$qCbcn8rSrppGU.$.XG6MN6mDba9gCU87suDtw9k2TkotTWgCsUEiPmqArI
-!
 !
 vlan internal allocation policy ascending
 no cdp log mismatch duplex
@@ -550,7 +552,6 @@ interface Vlan200
  description Management
  ip address 192.168.1.66 255.255.255.224
 !
-ip default-gateway 192.168.1.65
 ip forward-protocol nd
 !
 !
@@ -558,6 +559,7 @@ ip tcp synwait-time 5
 ip http server
 ip http secure-server
 ip ssh bulk-mode 131072
+ip route 0.0.0.0 0.0.0.0 192.168.1.65
 !
 !
 !
@@ -677,7 +679,6 @@ interface Ethernet0/3
 interface Vlan1
  ip address 192.168.1.98 255.255.255.240
 !
-ip default-gateway 192.168.1.97
 ip forward-protocol nd
 !
 !
@@ -685,7 +686,7 @@ ip tcp synwait-time 5
 ip http server
 ip http secure-server
 ip ssh bulk-mode 131072
-!
+ip route 0.0.0.0 0.0.0.0 192.168.1.97
 !
 !         
 !
