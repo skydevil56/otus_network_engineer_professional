@@ -12,14 +12,22 @@
 - Маршрутизаторы R13-R14 должны находиться в зоне 0 (backbone).
 - Маршрутизаторы R11-R12 должны находиться в зоне 10. Дополнительно к маршрутам должны получать маршрут по умолчанию.
 - Маршрутизатор R15 должен находиться в зоне 101 и получать только маршрут по умолчанию.
-- Маршрутизатор R16 должн находиться в зоне 102 и получать все маршруты, кроме маршрутов до сетей зоны 101.
+- Маршрутизатор R16 должен находиться в зоне 102 и получать все маршруты, кроме маршрутов до сетей зоны 101.
 - Настройки для IPv6 (если используется) повторяет логику IPv4.
 
-## Топология
+## Исходная топология
 
 ![a](media/lab06_1.PNG)
 
-[Схема для импорта в PNETlab](media/otus_cource_lab6_OSPF_pnetlab_export-20241201-143344.zip)
+## Измененная топология
+
+Из-за того, что при отключении SW13 роутер R12 не мог обрабатывать трафик на саб интерфейсах e0/1 - были удалены прямые линки между R11 и SW14, а также R12 и SW13, и добавлен прямой линк между R11 и R12.
+
+![a](media/lab06_2.PNG)
+
+## Схема для импорта в PNETlab (измененный вариант)
+
+[Схема для импорта в PNETlab](media/otus_cource_lab6_OSPF_pnetlab_export-20241201-202315.zip)
 
 ## Версии ПО
 
@@ -41,14 +49,14 @@
 ### Настройка маршрута по умолчанию на маршрутизаторах R13 и R14 через R21 и R31 соответственно
 Пока между автономными системами AS1001 и AS101, AS1001 и AS201 не настроен eBGP, то на маршрутизаторах R13 и R14 будет задан  статический маршрут по умолчанию через R21 и R31 соответственно (подробные настройки представлены в конфигурациях ниже).
 
-### Настройка протокола VRRP (на саб интерфейсах для VLAN 10, 20, 1000) на маршрутизаторах R11 и R12
-Маршрутизаторы R11 и R12 будут иметь три VRRP инстанса, под одному на каждый VLAN (саб интерфейс).  
+### Настройка протокола VRRP на маршрутизаторах R11 и R12
+Маршрутизаторы R11 и R12 будут иметь три VRRP инстанса на саб интерфейсах e0/0, под одному на каждый VLAN (10, 20, 1000).  
 VRRP инстансы на R11 будут иметь приоритет 150 (чем больше тем выше приоритет), VRRP инстансы на R12 будут иметь приоритет 50.  
 VRRP IP (кластерный адрес) для VLAN 10, 20, 1000 соответственно 10.10.1.1, 10.10.2.1, 10.10.255.1 (подробные настройки представлены в конфигурациях ниже).
 
 ### Настройка протокола OSPF
 1. Интерфейсы e0/1, e0/1 маршрутизаторов R13 и R14 будут в зоне 0 (backbone), интерфейсы e0/2, e0/3 маршрутизаторов R11 и R12 будут в зоне 0.
-1. Интерфейсы e0/1, e0/1 маршрутизаторов R11 и R12 будут в зоне 10. Дополнительно к маршрутам от других зон будут получать маршрут по умолчанию (default-information originate на R13 и R14).
+1. Интерфейсы e0/0.10, e0/0.20, e0/0.1000, e0/1 маршрутизаторов R11 и R12 будут в зоне 10. Дополнительно к маршрутам от других зон будут получать маршрут по умолчанию (default-information originate на R13 и R14).
 1. Интерфейс e0/0 маршрутизатора R15 будет находиться в зоне 101 и сам маршрутизатор будет получать только маршрут по умолчанию (default-information originate на R13 и настройка области 101 как stab R15 и totally stab на R13).
 1. Интерфейс e0/0 маршрутизатора R16 будет находиться в зоне 102 и cам маршрутизатор будет получать маршрут по умолчанию и все маршруты других зон, кроме маршрутов до сетей зоны 101 (default-information originate и настройка фильтрации на R14).
 
@@ -64,9 +72,7 @@ VRRP IP (кластерный адрес) для VLAN 10, 20, 1000 соотве�
 R11#sh run
 Building configuration...
 
-Current configuration : 1708 bytes
-!
-! Last configuration change at 13:25:15 UTC Sun Dec 1 2024
+Current configuration : 1688 bytes
 !
 version 15.4
 service timestamps debug datetime msec
@@ -143,6 +149,13 @@ interface Ethernet0/0.10
  vrrp 1 ip 10.10.1.1
  vrrp 1 priority 150
 !
+interface Ethernet0/0.20
+ encapsulation dot1Q 20
+ ip address 10.10.2.253 255.255.255.0
+ ip ospf 1 area 10
+ vrrp 3 ip 10.10.2.1
+ vrrp 3 priority 150
+!
 interface Ethernet0/0.1000
  encapsulation dot1Q 1000
  ip address 10.10.255.253 255.255.255.0
@@ -151,14 +164,8 @@ interface Ethernet0/0.1000
  vrrp 2 priority 150
 !
 interface Ethernet0/1
- no ip address
-!
-interface Ethernet0/1.20
- encapsulation dot1Q 20
- ip address 10.10.2.253 255.255.255.0
+ ip address 10.10.9.11 255.255.255.0
  ip ospf 1 area 10
- vrrp 3 ip 10.10.2.1
- vrrp 3 priority 150
 !
 interface Ethernet0/2
  ip address 10.10.3.11 255.255.255.0
@@ -220,19 +227,18 @@ R11#
 R11#
 R11#show ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES unset  up                    up
-Ethernet0/0.10             10.10.1.253     YES manual up                    up
-Ethernet0/0.1000           10.10.255.253   YES manual up                    up
-Ethernet0/1                unassigned      YES unset  up                    up
-Ethernet0/1.10             unassigned      YES unset  deleted               down
-Ethernet0/1.20             10.10.2.253     YES manual up                    up
-Ethernet0/2                10.10.3.11      YES manual up                    up
-Ethernet0/3                10.10.8.11      YES manual up                    up
-Ethernet1/0                unassigned      YES unset  administratively down down
-Ethernet1/1                unassigned      YES unset  administratively down down
-Ethernet1/2                unassigned      YES unset  administratively down down
-Ethernet1/3                unassigned      YES unset  administratively down down
-Loopback1                  10.10.0.11      YES manual up                    up
+Ethernet0/0                unassigned      YES NVRAM  up                    up
+Ethernet0/0.10             10.10.1.253     YES NVRAM  up                    up
+Ethernet0/0.20             10.10.2.253     YES NVRAM  up                    up
+Ethernet0/0.1000           10.10.255.253   YES NVRAM  up                    up
+Ethernet0/1                10.10.9.11      YES NVRAM  up                    up
+Ethernet0/2                10.10.3.11      YES NVRAM  up                    up
+Ethernet0/3                10.10.8.11      YES NVRAM  up                    up
+Ethernet1/0                unassigned      YES NVRAM  administratively down down
+Ethernet1/1                unassigned      YES NVRAM  administratively down down
+Ethernet1/2                unassigned      YES NVRAM  administratively down down
+Ethernet1/3                unassigned      YES NVRAM  administratively down down
+Loopback1                  10.10.0.11      YES NVRAM  up                    up
 R11#
 R11#
 R11#
@@ -250,29 +256,32 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 
 Gateway of last resort is 10.10.8.14 to network 0.0.0.0
 
-O*E2  0.0.0.0/0 [110/1] via 10.10.8.14, 00:02:56, Ethernet0/3
-                [110/1] via 10.10.3.13, 00:02:56, Ethernet0/2
-      10.0.0.0/8 is variably subnetted, 20 subnets, 2 masks
+O*E2  0.0.0.0/0 [110/1] via 10.10.8.14, 00:11:41, Ethernet0/3
+                [110/1] via 10.10.3.13, 00:15:43, Ethernet0/2
+      10.0.0.0/8 is variably subnetted, 22 subnets, 2 masks
 C        10.10.0.11/32 is directly connected, Loopback1
-O        10.10.0.12/32 [110/11] via 10.10.255.254, 00:02:11, Ethernet0/0.1000
-                       [110/11] via 10.10.2.254, 00:02:56, Ethernet0/1.20
-                       [110/11] via 10.10.1.254, 00:02:56, Ethernet0/0.10
-O        10.10.0.13/32 [110/11] via 10.10.3.13, 00:02:56, Ethernet0/2
-O        10.10.0.14/32 [110/11] via 10.10.8.14, 00:02:56, Ethernet0/3
-O IA     10.10.0.15/32 [110/21] via 10.10.3.13, 00:02:56, Ethernet0/2
-O IA     10.10.0.16/32 [110/21] via 10.10.8.14, 00:02:56, Ethernet0/3
+O        10.10.0.12/32 [110/11] via 10.10.255.254, 00:11:14, Ethernet0/0.1000
+                       [110/11] via 10.10.9.12, 00:11:41, Ethernet0/1
+                       [110/11] via 10.10.2.254, 00:11:14, Ethernet0/0.20
+                       [110/11] via 10.10.1.254, 00:11:04, Ethernet0/0.10
+O        10.10.0.13/32 [110/11] via 10.10.3.13, 00:15:43, Ethernet0/2
+O        10.10.0.14/32 [110/11] via 10.10.8.14, 00:11:41, Ethernet0/3
+O IA     10.10.0.15/32 [110/21] via 10.10.3.13, 00:15:43, Ethernet0/2
+O IA     10.10.0.16/32 [110/21] via 10.10.8.14, 00:11:41, Ethernet0/3
 C        10.10.1.0/24 is directly connected, Ethernet0/0.10
 L        10.10.1.253/32 is directly connected, Ethernet0/0.10
-C        10.10.2.0/24 is directly connected, Ethernet0/1.20
-L        10.10.2.253/32 is directly connected, Ethernet0/1.20
+C        10.10.2.0/24 is directly connected, Ethernet0/0.20
+L        10.10.2.253/32 is directly connected, Ethernet0/0.20
 C        10.10.3.0/24 is directly connected, Ethernet0/2
 L        10.10.3.11/32 is directly connected, Ethernet0/2
-O IA     10.10.4.0/24 [110/20] via 10.10.3.13, 00:02:56, Ethernet0/2
-O        10.10.5.0/24 [110/20] via 10.10.8.14, 00:02:11, Ethernet0/3
-O IA     10.10.6.0/24 [110/20] via 10.10.8.14, 00:02:56, Ethernet0/3
-O        10.10.7.0/24 [110/20] via 10.10.3.13, 00:02:11, Ethernet0/2
+O IA     10.10.4.0/24 [110/20] via 10.10.3.13, 00:15:43, Ethernet0/2
+O        10.10.5.0/24 [110/20] via 10.10.8.14, 00:11:41, Ethernet0/3
+O IA     10.10.6.0/24 [110/20] via 10.10.8.14, 00:11:41, Ethernet0/3
+O        10.10.7.0/24 [110/20] via 10.10.3.13, 00:12:53, Ethernet0/2
 C        10.10.8.0/24 is directly connected, Ethernet0/3
 L        10.10.8.11/32 is directly connected, Ethernet0/3
+C        10.10.9.0/24 is directly connected, Ethernet0/1
+L        10.10.9.11/32 is directly connected, Ethernet0/1
 C        10.10.255.0/24 is directly connected, Ethernet0/0.1000
 L        10.10.255.253/32 is directly connected, Ethernet0/0.1000
 R11#
@@ -282,7 +291,7 @@ R11#
 R11#show vrrp brief
 Interface          Grp Pri Time  Own Pre State   Master addr     Group addr
 Et0/0.10           1   150 3414       Y  Master  10.10.1.253     10.10.1.1
-Et0/1.20           3   150 3414       Y  Master  10.10.2.253     10.10.2.1
+Et0/0.20           3   150 3414       Y  Master  10.10.2.253     10.10.2.1
 Et0/0.1000         2   150 3414       Y  Master  10.10.255.253   10.10.255.1
 R11#
 R11#
@@ -290,7 +299,7 @@ R11#
 R11#
 R11#show ip ospf
  Routing Process "ospf 1" with ID 10.10.0.11
- Start time: 03:00:40.839, Time elapsed: 1w0d
+ Start time: 00:00:04.433, Time elapsed: 00:16:32.611
  Supports only single TOS(TOS0) routes
  Supports opaque LSA
  Supports Link-local Signaling (LLS)
@@ -308,7 +317,7 @@ R11#show ip ospf
  LSA group pacing timer 240 secs
  Interface flood pacing timer 33 msecs
  Retransmission pacing timer 66 msecs
- Number of external LSA 2. Checksum Sum 0x0122D1
+ Number of external LSA 2. Checksum Sum 0x00F8E6
  Number of opaque AS LSA 0. Checksum Sum 0x000000
  Number of DCbitless external and opaque AS LSA 0
  Number of DoNotAge external and opaque AS LSA 0
@@ -321,22 +330,22 @@ R11#show ip ospf
     Area BACKBONE(0)
         Number of interfaces in this area is 2
         Area has no authentication
-        SPF algorithm last executed 00:02:11.465 ago
-        SPF algorithm executed 3 times
+        SPF algorithm last executed 00:11:13.616 ago
+        SPF algorithm executed 9 times
         Area ranges are
-        Number of LSA 22. Checksum Sum 0x0D1EE8
+        Number of LSA 24. Checksum Sum 0x0E310D
         Number of opaque link LSA 0. Checksum Sum 0x000000
         Number of DCbitless LSA 0
         Number of indication LSA 0
         Number of DoNotAge LSA 0
         Flood list length 0
     Area 10
-        Number of interfaces in this area is 4 (1 loopback)
+        Number of interfaces in this area is 5 (1 loopback)
         Area has no authentication
-        SPF algorithm last executed 00:02:11.465 ago
-        SPF algorithm executed 3 times
+        SPF algorithm last executed 00:11:03.616 ago
+        SPF algorithm executed 10 times
         Area ranges are
-        Number of LSA 29. Checksum Sum 0x0DEC95
+        Number of LSA 30. Checksum Sum 0x0E0377
         Number of opaque link LSA 0. Checksum Sum 0x000000
         Number of DCbitless LSA 0
         Number of indication LSA 0
@@ -350,11 +359,12 @@ R11#
 R11#show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
-10.10.0.14        1   FULL/DR         00:00:37    10.10.8.14      Ethernet0/3
-10.10.0.13        1   FULL/DR         00:00:36    10.10.3.13      Ethernet0/2
-10.10.0.12        1   FULL/BDR        00:00:38    10.10.255.254   Ethernet0/0.1000
-10.10.0.12        1   FULL/BDR        00:00:35    10.10.2.254     Ethernet0/1.20
-10.10.0.12        1   FULL/BDR        00:00:34    10.10.1.254     Ethernet0/0.10
+10.10.0.14        1   FULL/BDR        00:00:34    10.10.8.14      Ethernet0/3
+10.10.0.13        1   FULL/DR         00:00:35    10.10.3.13      Ethernet0/2
+10.10.0.12        1   FULL/BDR        00:00:31    10.10.9.12      Ethernet0/1
+10.10.0.12        1   FULL/BDR        00:00:33    10.10.255.254   Ethernet0/0.1000
+10.10.0.12        1   FULL/BDR        00:00:31    10.10.2.254     Ethernet0/0.20
+10.10.0.12        1   FULL/BDR        00:00:31    10.10.1.254     Ethernet0/0.10
 R11#
 R11#
 R11#
@@ -366,88 +376,90 @@ R11#show ip ospf database
                 Router Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum Link count
-10.10.0.11      10.10.0.11      185         0x80000134 0x00D035 2
-10.10.0.12      10.10.0.12      137         0x80000132 0x00639E 2
-10.10.0.13      10.10.0.13      136         0x80000138 0x00FDCA 3
-10.10.0.14      10.10.0.14      136         0x80000009 0x002CBF 3
+10.10.0.11      10.10.0.11      713         0x80000141 0x009863 2
+10.10.0.12      10.10.0.12      680         0x80000140 0x0023D0 2
+10.10.0.13      10.10.0.13      716         0x80000147 0x007F3A 3
+10.10.0.14      10.10.0.14      679         0x80000018 0x00CB14 3
 
                 Net Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.3.13      10.10.0.13      186         0x80000001 0x00A212
-10.10.5.14      10.10.0.14      136         0x80000001 0x00941A
-10.10.7.13      10.10.0.13      136         0x80000001 0x00842B
-10.10.8.14      10.10.0.14      186         0x80000001 0x006547
+10.10.3.13      10.10.0.13      948         0x80000001 0x00A212
+10.10.5.14      10.10.0.14      679         0x80000001 0x00941A
+10.10.7.13      10.10.0.13      716         0x80000001 0x00842B
+10.10.8.11      10.10.0.11      713         0x80000001 0x00A111
 
                 Summary Net Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.11      10.10.0.11      176         0x80000001 0x003DC0
-10.10.0.11      10.10.0.12      128         0x80000001 0x009B57
-10.10.0.12      10.10.0.11      176         0x80000001 0x00975B
-10.10.0.12      10.10.0.12      128         0x80000001 0x002DCE
-10.10.0.15      10.10.0.13      381         0x80000002 0x006B81
-10.10.0.16      10.10.0.14      518         0x80000005 0x005592
-10.10.1.0       10.10.0.11      176         0x80000001 0x00FA04
-10.10.1.0       10.10.0.12      128         0x80000001 0x00F409
-10.10.2.0       10.10.0.11      176         0x80000001 0x00EF0E
-10.10.2.0       10.10.0.12      128         0x80000001 0x00E913
-10.10.4.0       10.10.0.13      381         0x80000002 0x00CB2D
-10.10.6.0       10.10.0.14      518         0x80000005 0x00A949
-10.10.255.0     10.10.0.11      176         0x80000001 0x0006F9
-10.10.255.0     10.10.0.12      128         0x80000001 0x00FFFE
+10.10.0.11      10.10.0.11      985         0x8000000B 0x0029CA
+10.10.0.11      10.10.0.12      709         0x80000003 0x009759
+10.10.0.12      10.10.0.11      700         0x80000001 0x00975B
+10.10.0.12      10.10.0.12      717         0x8000000C 0x0017D9
+10.10.0.15      10.10.0.13      982         0x8000000D 0x00558C
+10.10.0.16      10.10.0.14      707         0x80000011 0x003D9E
+10.10.1.0       10.10.0.11      977         0x8000000D 0x00E210
+10.10.1.0       10.10.0.12      709         0x80000003 0x00F00B
+10.10.2.0       10.10.0.11      977         0x8000000D 0x00D71A
+10.10.2.0       10.10.0.12      709         0x8000000D 0x00D11F
+10.10.4.0       10.10.0.13      982         0x8000000D 0x00B538
+10.10.6.0       10.10.0.14      707         0x80000011 0x009155
+10.10.9.0       10.10.0.11      977         0x80000003 0x009E56
+10.10.9.0       10.10.0.12      709         0x80000003 0x00985B
+10.10.255.0     10.10.0.11      977         0x8000000D 0x00ED06
+10.10.255.0     10.10.0.12      709         0x8000000D 0x00E70B
 
                 Router Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum Link count
-10.10.0.11      10.10.0.11      135         0x8000013B 0x006872 4
-10.10.0.12      10.10.0.12      136         0x80000138 0x00F2E4 4
+10.10.0.11      10.10.0.11      672         0x80000152 0x00DB7E 5
+10.10.0.12      10.10.0.12      673         0x80000153 0x0084CD 5
 
                 Net Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.1.253     10.10.0.11      135         0x80000001 0x005573
-10.10.2.253     10.10.0.11      135         0x80000001 0x004A7D
-10.10.255.253   10.10.0.11      135         0x80000001 0x006069
+10.10.1.253     10.10.0.11      676         0x80000001 0x005573
+10.10.2.253     10.10.0.11      677         0x80000001 0x004A7D
+10.10.9.11      10.10.0.11      715         0x80000001 0x007A39
+10.10.255.253   10.10.0.11      677         0x80000001 0x006069
 
                 Summary Net Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.13      10.10.0.11      176         0x80000001 0x008D64
-10.10.0.13      10.10.0.12      127         0x80000001 0x008769
-10.10.0.14      10.10.0.11      176         0x80000001 0x00836D
-10.10.0.14      10.10.0.12      127         0x80000001 0x007D72
-10.10.0.15      10.10.0.11      176         0x80000001 0x00DD08
-10.10.0.15      10.10.0.12      127         0x80000001 0x00D70D
-10.10.0.16      10.10.0.11      176         0x80000001 0x00D311
-10.10.0.16      10.10.0.12      127         0x80000001 0x00CD16
-10.10.3.0       10.10.0.11      176         0x80000001 0x00E418
-10.10.3.0       10.10.0.12      127         0x80000001 0x0043AE
-10.10.4.0       10.10.0.11      176         0x80000001 0x003EB3
-10.10.4.0       10.10.0.12      127         0x80000001 0x0038B8
-10.10.5.0       10.10.0.11      176         0x80000001 0x0033BD
-10.10.5.0       10.10.0.12      127         0x80000001 0x00C831
-10.10.6.0       10.10.0.11      176         0x80000001 0x0028C7
-10.10.6.0       10.10.0.12      127         0x80000001 0x0022CC
-10.10.7.0       10.10.0.11      176         0x80000001 0x001DD1
-10.10.7.0       10.10.0.12      127         0x80000001 0x00B245
-10.10.8.0       10.10.0.11      176         0x80000001 0x00AD4A
-10.10.8.0       10.10.0.12      127         0x80000001 0x000CE0
+10.10.0.13      10.10.0.11      942         0x8000000D 0x007570
+10.10.0.13      10.10.0.12      708         0x80000003 0x00836B
+10.10.0.14      10.10.0.11      700         0x80000001 0x00836D
+10.10.0.14      10.10.0.12      674         0x8000000E 0x00637F
+10.10.0.15      10.10.0.11      942         0x8000000D 0x00C514
+10.10.0.15      10.10.0.12      708         0x80000003 0x00D30F
+10.10.0.16      10.10.0.11      700         0x80000001 0x00D311
+10.10.0.16      10.10.0.12      674         0x8000000E 0x00B323
+10.10.3.0       10.10.0.11      982         0x8000000B 0x00D022
+10.10.3.0       10.10.0.12      708         0x80000003 0x003FB0
+10.10.4.0       10.10.0.11      942         0x8000000D 0x0026BF
+10.10.4.0       10.10.0.12      708         0x80000003 0x0034BA
+10.10.5.0       10.10.0.11      700         0x80000002 0x0031BE
+10.10.5.0       10.10.0.12      713         0x8000000C 0x00B23C
+10.10.6.0       10.10.0.11      700         0x80000001 0x0028C7
+10.10.6.0       10.10.0.12      674         0x8000000E 0x0008D9
+10.10.7.0       10.10.0.11      942         0x8000000D 0x0005DD
+10.10.7.0       10.10.0.12      713         0x8000000C 0x009C50
+10.10.8.0       10.10.0.11      982         0x8000000B 0x009954
+10.10.8.0       10.10.0.12      674         0x8000000E 0x00F1ED
 
                 Summary ASB Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.13      10.10.0.11      176         0x80000001 0x00757C
-10.10.0.13      10.10.0.12      127         0x80000001 0x006F81
-10.10.0.14      10.10.0.11      176         0x80000001 0x006B85
-10.10.0.14      10.10.0.12      127         0x80000001 0x00658A
+10.10.0.13      10.10.0.11      937         0x8000000E 0x005B89
+10.10.0.13      10.10.0.12      708         0x80000003 0x006B83
+10.10.0.14      10.10.0.11      700         0x80000001 0x006B85
+10.10.0.14      10.10.0.12      669         0x8000000F 0x004998
 
                 Type-5 AS External Link States
 
 Link ID         ADV Router      Age         Seq#       Checksum Tag
-0.0.0.0         10.10.0.13      381         0x80000129 0x00EE79 1
-0.0.0.0         10.10.0.14      518         0x80000005 0x003458 1
-
+0.0.0.0         10.10.0.13      989         0x80000133 0x00DA83 1
+0.0.0.0         10.10.0.14      715         0x80000010 0x001E63 1
 
 ```
 </details>
@@ -462,9 +474,7 @@ Link ID         ADV Router      Age         Seq#       Checksum Tag
 R12#sh run
 Building configuration...
 
-Current configuration : 1703 bytes
-!
-! Last configuration change at 13:23:34 UTC Sun Dec 1 2024
+Current configuration : 1683 bytes
 !
 version 15.4
 service timestamps debug datetime msec
@@ -534,6 +544,13 @@ interface Loopback1
 interface Ethernet0/0
  no ip address
 !
+interface Ethernet0/0.10
+ encapsulation dot1Q 10
+ ip address 10.10.1.254 255.255.255.0
+ ip ospf 1 area 10
+ vrrp 1 ip 10.10.1.1
+ vrrp 1 priority 50
+!
 interface Ethernet0/0.20
  encapsulation dot1Q 20
  ip address 10.10.2.254 255.255.255.0
@@ -549,14 +566,8 @@ interface Ethernet0/0.1000
  vrrp 2 priority 50
 !
 interface Ethernet0/1
- no ip address
-!
-interface Ethernet0/1.10
- encapsulation dot1Q 10
- ip address 10.10.1.254 255.255.255.0
+ ip address 10.10.9.12 255.255.255.0
  ip ospf 1 area 10
- vrrp 1 ip 10.10.1.1
- vrrp 1 priority 50
 !
 interface Ethernet0/2
  ip address 10.10.5.12 255.255.255.0
@@ -618,18 +629,18 @@ R12#
 R12#
 R12#show ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES unset  up                    up
-Ethernet0/0.20             10.10.2.254     YES manual up                    up
-Ethernet0/0.1000           10.10.255.254   YES manual up                    up
-Ethernet0/1                unassigned      YES unset  up                    up
-Ethernet0/1.10             10.10.1.254     YES manual up                    up
-Ethernet0/2                10.10.5.12      YES manual up                    up
-Ethernet0/3                10.10.7.12      YES manual up                    up
-Ethernet1/0                unassigned      YES unset  administratively down down
-Ethernet1/1                unassigned      YES unset  administratively down down
-Ethernet1/2                unassigned      YES unset  administratively down down
-Ethernet1/3                unassigned      YES unset  administratively down down
-Loopback1                  10.10.0.12      YES manual up                    up
+Ethernet0/0                unassigned      YES NVRAM  up                    up
+Ethernet0/0.10             10.10.1.254     YES NVRAM  up                    up
+Ethernet0/0.20             10.10.2.254     YES NVRAM  up                    up
+Ethernet0/0.1000           10.10.255.254   YES NVRAM  up                    up
+Ethernet0/1                10.10.9.12      YES NVRAM  up                    up
+Ethernet0/2                10.10.5.12      YES NVRAM  up                    up
+Ethernet0/3                10.10.7.12      YES NVRAM  up                    up
+Ethernet1/0                unassigned      YES NVRAM  administratively down down
+Ethernet1/1                unassigned      YES NVRAM  administratively down down
+Ethernet1/2                unassigned      YES NVRAM  administratively down down
+Ethernet1/3                unassigned      YES NVRAM  administratively down down
+Loopback1                  10.10.0.12      YES NVRAM  up                    up
 R12#
 R12#
 R12#
@@ -647,30 +658,33 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 
 Gateway of last resort is 10.10.7.13 to network 0.0.0.0
 
-O*E2  0.0.0.0/0 [110/1] via 10.10.7.13, 00:03:55, Ethernet0/3
-                [110/1] via 10.10.5.14, 00:03:55, Ethernet0/2
-      10.0.0.0/8 is variably subnetted, 21 subnets, 2 masks
+O*E2  0.0.0.0/0 [110/1] via 10.10.7.13, 00:12:40, Ethernet0/3
+                [110/1] via 10.10.5.14, 00:12:07, Ethernet0/2
+      10.0.0.0/8 is variably subnetted, 23 subnets, 2 masks
 C        10.10.0.0/24 is directly connected, Loopback1
-O        10.10.0.11/32 [110/11] via 10.10.255.253, 00:03:55, Ethernet0/0.1000
-                       [110/11] via 10.10.2.253, 00:03:55, Ethernet0/0.20
-                       [110/11] via 10.10.1.253, 00:03:55, Ethernet0/1.10
+O        10.10.0.11/32 [110/11] via 10.10.255.253, 00:12:07, Ethernet0/0.1000
+                       [110/11] via 10.10.9.11, 00:12:40, Ethernet0/1
+                       [110/11] via 10.10.2.253, 00:12:07, Ethernet0/0.20
+                       [110/11] via 10.10.1.253, 00:11:57, Ethernet0/0.10
 L        10.10.0.12/32 is directly connected, Loopback1
-O        10.10.0.13/32 [110/11] via 10.10.7.13, 00:03:55, Ethernet0/3
-O        10.10.0.14/32 [110/11] via 10.10.5.14, 00:03:55, Ethernet0/2
-O IA     10.10.0.15/32 [110/21] via 10.10.7.13, 00:03:55, Ethernet0/3
-O IA     10.10.0.16/32 [110/21] via 10.10.5.14, 00:03:55, Ethernet0/2
-C        10.10.1.0/24 is directly connected, Ethernet0/1.10
-L        10.10.1.254/32 is directly connected, Ethernet0/1.10
+O        10.10.0.13/32 [110/11] via 10.10.7.13, 00:12:40, Ethernet0/3
+O        10.10.0.14/32 [110/11] via 10.10.5.14, 00:12:07, Ethernet0/2
+O IA     10.10.0.15/32 [110/21] via 10.10.7.13, 00:12:40, Ethernet0/3
+O IA     10.10.0.16/32 [110/21] via 10.10.5.14, 00:12:07, Ethernet0/2
+C        10.10.1.0/24 is directly connected, Ethernet0/0.10
+L        10.10.1.254/32 is directly connected, Ethernet0/0.10
 C        10.10.2.0/24 is directly connected, Ethernet0/0.20
 L        10.10.2.254/32 is directly connected, Ethernet0/0.20
-O        10.10.3.0/24 [110/20] via 10.10.7.13, 00:03:55, Ethernet0/3
-O IA     10.10.4.0/24 [110/20] via 10.10.7.13, 00:03:55, Ethernet0/3
+O        10.10.3.0/24 [110/20] via 10.10.7.13, 00:12:40, Ethernet0/3
+O IA     10.10.4.0/24 [110/20] via 10.10.7.13, 00:12:40, Ethernet0/3
 C        10.10.5.0/24 is directly connected, Ethernet0/2
 L        10.10.5.12/32 is directly connected, Ethernet0/2
-O IA     10.10.6.0/24 [110/20] via 10.10.5.14, 00:03:55, Ethernet0/2
+O IA     10.10.6.0/24 [110/20] via 10.10.5.14, 00:12:07, Ethernet0/2
 C        10.10.7.0/24 is directly connected, Ethernet0/3
 L        10.10.7.12/32 is directly connected, Ethernet0/3
-O        10.10.8.0/24 [110/20] via 10.10.5.14, 00:03:55, Ethernet0/2
+O        10.10.8.0/24 [110/20] via 10.10.5.14, 00:12:07, Ethernet0/2
+C        10.10.9.0/24 is directly connected, Ethernet0/1
+L        10.10.9.12/32 is directly connected, Ethernet0/1
 C        10.10.255.0/24 is directly connected, Ethernet0/0.1000
 L        10.10.255.254/32 is directly connected, Ethernet0/0.1000
 R12#
@@ -679,16 +693,16 @@ R12#
 R12#
 R12#show vrrp brief
 Interface          Grp Pri Time  Own Pre State   Master addr     Group addr
-Et0/0.1000         2   50  3804       Y  Backup  10.10.255.253   10.10.255.1
+Et0/0.10           1   50  3804       Y  Backup  10.10.1.253     10.10.1.1
 Et0/0.20           3   50  3804       Y  Backup  10.10.2.253     10.10.2.1
-Et0/1.10           1   50  3804       Y  Backup  10.10.1.253     10.10.1.1
+Et0/0.1000         2   50  3804       Y  Backup  10.10.255.253   10.10.255.1
 R12#
 R12#
 R12#
 R12#
 R12#show ip ospf
  Routing Process "ospf 1" with ID 10.10.0.12
- Start time: 03:10:09.691, Time elapsed: 6d23h
+ Start time: 00:00:04.429, Time elapsed: 00:12:54.755
  Supports only single TOS(TOS0) routes
  Supports opaque LSA
  Supports Link-local Signaling (LLS)
@@ -706,7 +720,7 @@ R12#show ip ospf
  LSA group pacing timer 240 secs
  Interface flood pacing timer 33 msecs
  Retransmission pacing timer 66 msecs
- Number of external LSA 2. Checksum Sum 0x0122D1
+ Number of external LSA 2. Checksum Sum 0x00F8E6
  Number of opaque AS LSA 0. Checksum Sum 0x000000
  Number of DCbitless external and opaque AS LSA 0
  Number of DoNotAge external and opaque AS LSA 0
@@ -719,22 +733,22 @@ R12#show ip ospf
     Area BACKBONE(0)
         Number of interfaces in this area is 2
         Area has no authentication
-        SPF algorithm last executed 00:03:55.160 ago
-        SPF algorithm executed 2 times
+        SPF algorithm last executed 00:12:06.190 ago
+        SPF algorithm executed 4 times
         Area ranges are
-        Number of LSA 22. Checksum Sum 0x0D1EE8
+        Number of LSA 24. Checksum Sum 0x0E310D
         Number of opaque link LSA 0. Checksum Sum 0x000000
         Number of DCbitless LSA 0
         Number of indication LSA 0
         Number of DoNotAge LSA 0
         Flood list length 0
     Area 10
-        Number of interfaces in this area is 4 (1 loopback)
+        Number of interfaces in this area is 5 (1 loopback)
         Area has no authentication
-        SPF algorithm last executed 00:03:55.160 ago
-        SPF algorithm executed 2 times
+        SPF algorithm last executed 00:11:56.190 ago
+        SPF algorithm executed 4 times
         Area ranges are
-        Number of LSA 29. Checksum Sum 0x0DEC95
+        Number of LSA 30. Checksum Sum 0x0E0377
         Number of opaque link LSA 0. Checksum Sum 0x000000
         Number of DCbitless LSA 0
         Number of indication LSA 0
@@ -748,11 +762,12 @@ R12#
 R12#show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
-10.10.0.14        1   FULL/DR         00:00:32    10.10.5.14      Ethernet0/2
-10.10.0.13        1   FULL/DR         00:00:34    10.10.7.13      Ethernet0/3
-10.10.0.11        1   FULL/DR         00:00:37    10.10.255.253   Ethernet0/0.1000
-10.10.0.11        1   FULL/DR         00:00:39    10.10.1.253     Ethernet0/1.10
+10.10.0.13        1   FULL/DR         00:00:36    10.10.7.13      Ethernet0/3
+10.10.0.14        1   FULL/DR         00:00:39    10.10.5.14      Ethernet0/2
+10.10.0.11        1   FULL/DR         00:00:32    10.10.9.11      Ethernet0/1
+10.10.0.11        1   FULL/DR         00:00:39    10.10.255.253   Ethernet0/0.1000
 10.10.0.11        1   FULL/DR         00:00:39    10.10.2.253     Ethernet0/0.20
+10.10.0.11        1   FULL/DR         00:00:32    10.10.1.253     Ethernet0/0.10
 R12#
 R12#
 R12#
@@ -764,87 +779,90 @@ R12#show ip ospf database
                 Router Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum Link count
-10.10.0.11      10.10.0.11      298         0x80000134 0x00D035 2
-10.10.0.12      10.10.0.12      244         0x80000132 0x00639E 2
-10.10.0.13      10.10.0.13      245         0x80000138 0x00FDCA 3
-10.10.0.14      10.10.0.14      245         0x80000009 0x002CBF 3
+10.10.0.11      10.10.0.11      768         0x80000141 0x009863 2
+10.10.0.12      10.10.0.12      731         0x80000140 0x0023D0 2
+10.10.0.13      10.10.0.13      768         0x80000147 0x007F3A 3
+10.10.0.14      10.10.0.14      732         0x80000018 0x00CB14 3
 
                 Net Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.3.13      10.10.0.13      295         0x80000001 0x00A212
-10.10.5.14      10.10.0.14      245         0x80000001 0x00941A
-10.10.7.13      10.10.0.13      245         0x80000001 0x00842B
-10.10.8.14      10.10.0.14      297         0x80000001 0x006547
+10.10.3.13      10.10.0.13      1000        0x80000001 0x00A212
+10.10.5.14      10.10.0.14      732         0x80000001 0x00941A
+10.10.7.13      10.10.0.13      768         0x80000001 0x00842B
+10.10.8.11      10.10.0.11      768         0x80000001 0x00A111
 
                 Summary Net Link States (Area 0)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.11      10.10.0.11      286         0x80000001 0x003DC0
-10.10.0.11      10.10.0.12      235         0x80000001 0x009B57
-10.10.0.12      10.10.0.11      286         0x80000001 0x00975B
-10.10.0.12      10.10.0.12      235         0x80000001 0x002DCE
-10.10.0.15      10.10.0.13      488         0x80000002 0x006B81
-10.10.0.16      10.10.0.14      629         0x80000005 0x005592
-10.10.1.0       10.10.0.11      286         0x80000001 0x00FA04
-10.10.1.0       10.10.0.12      235         0x80000001 0x00F409
-10.10.2.0       10.10.0.11      286         0x80000001 0x00EF0E
-10.10.2.0       10.10.0.12      235         0x80000001 0x00E913
-10.10.4.0       10.10.0.13      488         0x80000002 0x00CB2D
-10.10.6.0       10.10.0.14      629         0x80000005 0x00A949
-10.10.255.0     10.10.0.11      286         0x80000001 0x0006F9
-10.10.255.0     10.10.0.12      235         0x80000001 0x00FFFE
+10.10.0.11      10.10.0.11      1042        0x8000000B 0x0029CA
+10.10.0.11      10.10.0.12      759         0x80000003 0x009759
+10.10.0.12      10.10.0.11      755         0x80000001 0x00975B
+10.10.0.12      10.10.0.12      767         0x8000000C 0x0017D9
+10.10.0.15      10.10.0.13      1032        0x8000000D 0x00558C
+10.10.0.16      10.10.0.14      761         0x80000011 0x003D9E
+10.10.1.0       10.10.0.11      1033        0x8000000D 0x00E210
+10.10.1.0       10.10.0.12      759         0x80000003 0x00F00B
+10.10.2.0       10.10.0.11      1033        0x8000000D 0x00D71A
+10.10.2.0       10.10.0.12      759         0x8000000D 0x00D11F
+10.10.4.0       10.10.0.13      1032        0x8000000D 0x00B538
+10.10.6.0       10.10.0.14      761         0x80000011 0x009155
+10.10.9.0       10.10.0.11      1033        0x80000003 0x009E56
+10.10.9.0       10.10.0.12      759         0x80000003 0x00985B
+10.10.255.0     10.10.0.11      1033        0x8000000D 0x00ED06
+10.10.255.0     10.10.0.12      759         0x8000000D 0x00E70B
 
                 Router Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum Link count
-10.10.0.11      10.10.0.11      245         0x8000013B 0x006872 4
-10.10.0.12      10.10.0.12      244         0x80000138 0x00F2E4 4
+10.10.0.11      10.10.0.11      726         0x80000152 0x00DB7E 5
+10.10.0.12      10.10.0.12      725         0x80000153 0x0084CD 5
 
                 Net Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.1.253     10.10.0.11      245         0x80000001 0x005573
-10.10.2.253     10.10.0.11      245         0x80000001 0x004A7D
-10.10.255.253   10.10.0.11      245         0x80000001 0x006069
+10.10.1.253     10.10.0.11      730         0x80000001 0x005573
+10.10.2.253     10.10.0.11      730         0x80000001 0x004A7D
+10.10.9.11      10.10.0.11      768         0x80000001 0x007A39
+10.10.255.253   10.10.0.11      730         0x80000001 0x006069
 
                 Summary Net Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.13      10.10.0.11      285         0x80000001 0x008D64
-10.10.0.13      10.10.0.12      235         0x80000001 0x008769
-10.10.0.14      10.10.0.11      285         0x80000001 0x00836D
-10.10.0.14      10.10.0.12      235         0x80000001 0x007D72
-10.10.0.15      10.10.0.11      285         0x80000001 0x00DD08
-10.10.0.15      10.10.0.12      235         0x80000001 0x00D70D
-10.10.0.16      10.10.0.11      285         0x80000001 0x00D311
-10.10.0.16      10.10.0.12      235         0x80000001 0x00CD16
-10.10.3.0       10.10.0.11      285         0x80000001 0x00E418
-10.10.3.0       10.10.0.12      235         0x80000001 0x0043AE
-10.10.4.0       10.10.0.11      285         0x80000001 0x003EB3
-10.10.4.0       10.10.0.12      235         0x80000001 0x0038B8
-10.10.5.0       10.10.0.11      285         0x80000001 0x0033BD
-10.10.5.0       10.10.0.12      235         0x80000001 0x00C831
-10.10.6.0       10.10.0.11      285         0x80000001 0x0028C7
-10.10.6.0       10.10.0.12      235         0x80000001 0x0022CC
-10.10.7.0       10.10.0.11      285         0x80000001 0x001DD1
-10.10.7.0       10.10.0.12      235         0x80000001 0x00B245
-10.10.8.0       10.10.0.11      285         0x80000001 0x00AD4A
-10.10.8.0       10.10.0.12      235         0x80000001 0x000CE0
+10.10.0.13      10.10.0.11      995         0x8000000D 0x007570
+10.10.0.13      10.10.0.12      759         0x80000003 0x00836B
+10.10.0.14      10.10.0.11      754         0x80000001 0x00836D
+10.10.0.14      10.10.0.12      726         0x8000000E 0x00637F
+10.10.0.15      10.10.0.11      995         0x8000000D 0x00C514
+10.10.0.15      10.10.0.12      759         0x80000003 0x00D30F
+10.10.0.16      10.10.0.11      754         0x80000001 0x00D311
+10.10.0.16      10.10.0.12      726         0x8000000E 0x00B323
+10.10.3.0       10.10.0.11      1035        0x8000000B 0x00D022
+10.10.3.0       10.10.0.12      759         0x80000003 0x003FB0
+10.10.4.0       10.10.0.11      995         0x8000000D 0x0026BF
+10.10.4.0       10.10.0.12      759         0x80000003 0x0034BA
+10.10.5.0       10.10.0.11      754         0x80000002 0x0031BE
+10.10.5.0       10.10.0.12      764         0x8000000C 0x00B23C
+10.10.6.0       10.10.0.11      754         0x80000001 0x0028C7
+10.10.6.0       10.10.0.12      726         0x8000000E 0x0008D9
+10.10.7.0       10.10.0.11      995         0x8000000D 0x0005DD
+10.10.7.0       10.10.0.12      764         0x8000000C 0x009C50
+10.10.8.0       10.10.0.11      1035        0x8000000B 0x009954
+10.10.8.0       10.10.0.12      726         0x8000000E 0x00F1ED
 
                 Summary ASB Link States (Area 10)
 
 Link ID         ADV Router      Age         Seq#       Checksum
-10.10.0.13      10.10.0.11      285         0x80000001 0x00757C
-10.10.0.13      10.10.0.12      235         0x80000001 0x006F81
-10.10.0.14      10.10.0.11      285         0x80000001 0x006B85
-10.10.0.14      10.10.0.12      235         0x80000001 0x00658A
+10.10.0.13      10.10.0.11      990         0x8000000E 0x005B89
+10.10.0.13      10.10.0.12      759         0x80000003 0x006B83
+10.10.0.14      10.10.0.11      754         0x80000001 0x006B85
+10.10.0.14      10.10.0.12      721         0x8000000F 0x004998
 
                 Type-5 AS External Link States
 
 Link ID         ADV Router      Age         Seq#       Checksum Tag
-0.0.0.0         10.10.0.13      488         0x80000129 0x00EE79 1
-0.0.0.0         10.10.0.14      629         0x80000005 0x003458 1
+0.0.0.0         10.10.0.13      1040        0x80000133 0x00DA83 1
+0.0.0.0         10.10.0.14      768         0x80000010 0x001E63 1
 
 
 ```
@@ -2476,9 +2494,9 @@ Et0/1               Root FWD 100       128.2    Shr
 SW13#sh run
 Building configuration...
 
-Current configuration : 1487 bytes
+Current configuration : 1419 bytes
 !
-! Last configuration change at 15:18:42 UTC Sun Nov 24 2024
+! Last configuration change at 18:56:34 UTC Sun Dec 1 2024
 !
 version 15.2
 service timestamps debug datetime msec
@@ -2537,7 +2555,6 @@ interface Ethernet0/0
 interface Ethernet0/1
  switchport trunk encapsulation dot1q
  switchport mode trunk
- duplex auto
 !
 interface Ethernet0/2
  switchport trunk encapsulation dot1q
@@ -2554,8 +2571,6 @@ interface Ethernet1/0
  switchport mode trunk
 !
 interface Ethernet1/1
- switchport trunk encapsulation dot1q
- switchport mode trunk
 !
 interface Ethernet1/2
 !
@@ -2582,6 +2597,7 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
+ login
 !
 !
 end
@@ -2589,13 +2605,11 @@ end
 SW13#
 SW13#
 SW13#
-SW13#
-SW13#
 SW13#show vlan
 
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
-1    default                          active    Et1/2, Et1/3
+1    default                          active    Et1/1, Et1/2, Et1/3
 10   VLAN0010                         active
 20   VLAN0020                         active
 1000 MGMT                             active
@@ -2617,6 +2631,7 @@ VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
 
 Primary Secondary Type              Ports
 ------- --------- ----------------- ------------------------------------------
+
 SW13#
 SW13#
 SW13#
@@ -2640,7 +2655,6 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Desg FWD 56        128.65   Shr
 
 
@@ -2661,7 +2675,6 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Desg FWD 56        128.65   Shr
 
 
@@ -2682,8 +2695,10 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Desg FWD 56        128.65   Shr
+
+
+
 
 ```
 </details>
@@ -2698,9 +2713,9 @@ Po1                 Desg FWD 56        128.65   Shr
 SW14#sh run
 Building configuration...
 
-Current configuration : 1457 bytes
+Current configuration : 1402 bytes
 !
-! Last configuration change at 15:19:01 UTC Sun Nov 24 2024
+! Last configuration change at 18:59:51 UTC Sun Dec 1 2024
 !
 version 15.2
 service timestamps debug datetime msec
@@ -2774,8 +2789,6 @@ interface Ethernet1/0
  switchport mode trunk
 !
 interface Ethernet1/1
- switchport trunk encapsulation dot1q
- switchport mode trunk
 !
 interface Ethernet1/2
 !
@@ -2802,6 +2815,7 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
+ login
 !
 !
 end
@@ -2813,7 +2827,7 @@ SW14#show vlan
 
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
-1    default                          active    Et1/2, Et1/3
+1    default                          active    Et1/1, Et1/2, Et1/3
 10   VLAN0010                         active
 20   VLAN0020                         active
 1000 MGMT                             active
@@ -2835,6 +2849,11 @@ VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
 
 Primary Secondary Type              Ports
 ------- --------- ----------------- ------------------------------------------
+
+SW14#
+SW14#
+SW14#
+SW14#
 SW14#show spanning-tree vlan 10,20,1000
 
 VLAN0010
@@ -2855,7 +2874,6 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Root FWD 56        128.65   Shr
 
 
@@ -2870,14 +2888,13 @@ VLAN0020
   Bridge ID  Priority    4116   (priority 4096 sys-id-ext 20)
              Address     aabb.cc00.0400
              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
-             Aging Time  15  sec
+             Aging Time  300 sec
 
 Interface           Role Sts Cost      Prio.Nbr Type
 ------------------- ---- --- --------- -------- --------------------------------
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Root FWD 56        128.65   Shr
 
 
@@ -2899,11 +2916,7 @@ Interface           Role Sts Cost      Prio.Nbr Type
 Et0/0               Desg FWD 100       128.1    Shr
 Et0/1               Desg FWD 100       128.2    Shr
 Et1/0               Desg FWD 100       128.5    Shr
-Et1/1               Desg FWD 100       128.6    Shr
 Po1                 Root FWD 56        128.65   Shr
-
-
-
 
 ```
 </details>
