@@ -1,4 +1,4 @@
-# Планирование адресного пространства 
+# IP SLA и PBR
 
 ## Задание
 
@@ -9,7 +9,7 @@
 
 ![a](media/lab05_1.PNG)
 
-[Схема для импорта в PNETlab](media/otus_cource_lab4_net_planning_pnetlab_export-20241116-183936)
+[Схема для импорта в PNETlab](media/otus_cource_lab5_ip_sla_pbr_pnetlab_export-20241117-174525.zip)
 
 ## Версии ПО
 
