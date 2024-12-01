@@ -25,7 +25,9 @@
 
 ![a](media/lab06_2.PNG)
 
-[Схема для импорта в PNETlab](media/otus_cource_lab6_OSPF_pnetlab_export-20241201-143344.zip)
+## Схема для импорта в PNETlab (измененный вариант)
+
+[Схема для импорта в PNETlab](media/otus_cource_lab6_OSPF_pnetlab_export-20241201-202315.zip)
 
 ## Версии ПО
 
