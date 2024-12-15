@@ -10,7 +10,7 @@
 ![a](media/lab04_1.PNG)
 
 
-[Схема для импорта в PNETlab](media/otus_cource_lab4_net_planning_pnetlab_export-20241116-183936.zip)
+[Схема для импорта в PNETlab](media/otus_cource_lab4_net_planning_pnetlab_export-20241215-175132.zip)
 
 ## Версии ПО
 
