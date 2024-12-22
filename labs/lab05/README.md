@@ -633,6 +633,13 @@ end
 
 ```
 
+SW71#show  run
+Building configuration...
+
+Current configuration : 974 bytes
+!
+! Last configuration change at 18:51:08 UTC Sat Dec 21 2024
+!
 version 15.2
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -698,6 +705,7 @@ ip forward-protocol nd
 no ip http server
 no ip http secure-server
 !
+ip route 0.0.0.0 0.0.0.0 10.70.255.1
 !
 !
 !
@@ -710,9 +718,39 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
+ login
 !
 !
 end
+
+SW71#
+SW71#
+SW71#
+SW71#
+SW71#show vlan
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/3
+10   VLAN0010                         active    Et0/0, Et0/1
+1000 VLAN1000                         active
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        0      0
+10   enet  100010     1500  -      -      -        -    -        0      0
+1000 enet  101000     1500  -      -      -        -    -        0      0
+1002 fddi  101002     1500  -      -      -        -    -        0      0
+1003 tr    101003     1500  -      -      -        -    -        0      0
+1004 fdnet 101004     1500  -      -      -        ieee -        0      0
+1005 trnet 101005     1500  -      -      -        ibm  -        0      0
+
+Primary Secondary Type              Ports
+------- --------- ----------------- ------------------------------------------
 
 
 

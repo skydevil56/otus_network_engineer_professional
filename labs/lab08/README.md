@@ -18,7 +18,7 @@
 
 ## Схема для импорта в PNETlab
 
-[Схема для импорта в PNETlab](media/otus_cource_lab8_EIGRP_pnetlab_export-20241215-175132.zip)
+[Схема для импорта в PNETlab](media/otus_cource_lab8_EIGRP_pnetlab_export-20241222-162207.zip)
 
 ## Версии ПО
 
@@ -55,9 +55,9 @@
 R51#sh run
 Building configuration...
 
-Current configuration : 1716 bytes
+Current configuration : 1706 bytes
 !
-! Last configuration change at 16:10:14 UTC Sun Dec 15 2024
+! Last configuration change at 19:52:57 UTC Sat Dec 21 2024
 !
 version 15.4
 service timestamps debug datetime msec
@@ -152,7 +152,6 @@ interface Ethernet0/2
 !
 interface Ethernet0/3
  no ip address
- shutdown
 !
 !
 router eigrp SPB
@@ -203,14 +202,14 @@ R51#
 R51#
 R51#show ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES NVRAM  up                    up
-Ethernet0/0.10             10.50.1.253     YES NVRAM  up                    up
-Ethernet0/0.20             10.50.2.253     YES NVRAM  up                    up
-Ethernet0/0.1000           10.50.255.253   YES NVRAM  up                    up
-Ethernet0/1                10.50.3.51      YES NVRAM  up                    up
-Ethernet0/2                10.50.6.51      YES NVRAM  up                    up
-Ethernet0/3                unassigned      YES NVRAM  administratively down down
-Loopback1                  10.50.0.51      YES NVRAM  up                    up
+Ethernet0/0                unassigned      YES manual up                    up
+Ethernet0/0.10             10.50.1.253     YES manual up                    up
+Ethernet0/0.20             10.50.2.253     YES manual up                    up
+Ethernet0/0.1000           10.50.255.253   YES manual up                    up
+Ethernet0/1                10.50.3.51      YES manual up                    up
+Ethernet0/2                10.50.6.51      YES manual up                    up
+Ethernet0/3                unassigned      YES manual down                  down
+Loopback1                  10.50.0.51      YES manual up                    up
 R51#
 R51#
 R51#
@@ -230,17 +229,17 @@ Gateway of last resort is not set
 
       10.0.0.0/8 is variably subnetted, 16 subnets, 2 masks
 C        10.50.0.51/32 is directly connected, Loopback1
-D        10.50.0.52/32 [90/1024640] via 10.50.3.52, 00:27:49, Ethernet0/1
+D        10.50.0.52/32 [90/1024640] via 10.50.3.52, 00:02:12, Ethernet0/1
 D        10.50.0.53/32
-           [90/1024640] via 10.50.255.254, 00:27:49, Ethernet0/0.1000
-           [90/1024640] via 10.50.6.53, 00:27:49, Ethernet0/2
-           [90/1024640] via 10.50.2.254, 00:27:49, Ethernet0/0.20
-           [90/1024640] via 10.50.1.254, 00:27:49, Ethernet0/0.10
+           [90/1024640] via 10.50.255.254, 00:02:12, Ethernet0/0.1000
+           [90/1024640] via 10.50.6.53, 00:02:12, Ethernet0/2
+           [90/1024640] via 10.50.2.254, 00:02:12, Ethernet0/0.20
+           [90/1024640] via 10.50.1.254, 00:02:12, Ethernet0/0.10
 D        10.50.0.54/32
-           [90/1536640] via 10.50.255.254, 00:27:49, Ethernet0/0.1000
-           [90/1536640] via 10.50.6.53, 00:27:49, Ethernet0/2
-           [90/1536640] via 10.50.2.254, 00:27:49, Ethernet0/0.20
-           [90/1536640] via 10.50.1.254, 00:27:49, Ethernet0/0.10
+           [90/1536640] via 10.50.255.254, 00:02:12, Ethernet0/0.1000
+           [90/1536640] via 10.50.6.53, 00:02:12, Ethernet0/2
+           [90/1536640] via 10.50.2.254, 00:02:12, Ethernet0/0.20
+           [90/1536640] via 10.50.1.254, 00:02:12, Ethernet0/0.10
 C        10.50.1.0/24 is directly connected, Ethernet0/0.10
 L        10.50.1.253/32 is directly connected, Ethernet0/0.10
 C        10.50.2.0/24 is directly connected, Ethernet0/0.20
@@ -248,15 +247,15 @@ L        10.50.2.253/32 is directly connected, Ethernet0/0.20
 C        10.50.3.0/24 is directly connected, Ethernet0/1
 L        10.50.3.51/32 is directly connected, Ethernet0/1
 D        10.50.4.0/24
-           [90/1536000] via 10.50.255.254, 00:27:49, Ethernet0/0.1000
-           [90/1536000] via 10.50.6.53, 00:27:49, Ethernet0/2
-           [90/1536000] via 10.50.3.52, 00:27:49, Ethernet0/1
-           [90/1536000] via 10.50.1.254, 00:27:49, Ethernet0/0.10
+           [90/1536000] via 10.50.255.254, 00:02:12, Ethernet0/0.1000
+           [90/1536000] via 10.50.6.53, 00:02:12, Ethernet0/2
+           [90/1536000] via 10.50.3.52, 00:02:12, Ethernet0/1
+           [90/1536000] via 10.50.2.254, 00:02:12, Ethernet0/0.20
 D        10.50.5.0/24
-           [90/1536000] via 10.50.255.254, 00:27:49, Ethernet0/0.1000
-           [90/1536000] via 10.50.6.53, 00:27:49, Ethernet0/2
-           [90/1536000] via 10.50.2.254, 00:27:49, Ethernet0/0.20
-           [90/1536000] via 10.50.1.254, 00:27:49, Ethernet0/0.10
+           [90/1536000] via 10.50.255.254, 00:02:12, Ethernet0/0.1000
+           [90/1536000] via 10.50.6.53, 00:02:12, Ethernet0/2
+           [90/1536000] via 10.50.2.254, 00:02:12, Ethernet0/0.20
+           [90/1536000] via 10.50.1.254, 00:02:12, Ethernet0/0.10
 C        10.50.6.0/24 is directly connected, Ethernet0/2
 L        10.50.6.51/32 is directly connected, Ethernet0/2
 C        10.50.255.0/24 is directly connected, Ethernet0/0.1000
@@ -269,11 +268,11 @@ R51#show ip eigrp neighbors
 EIGRP-IPv4 VR(SPB) Address-Family Neighbors for AS(1)
 H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
                                                    (sec)         (ms)       Cnt Num
-4   10.50.255.254           Et0/0.1000               13 05:30:53    1   100  0  132
-3   10.50.2.254             Et0/0.20                 11 05:30:54    1   100  0  133
-2   10.50.1.254             Et0/0.10                 11 05:30:54    1   100  0  134
-1   10.50.6.53              Et0/2                    12 05:37:28    1   100  0  136
-0   10.50.3.52              Et0/1                    11 21:07:43    1   100  0  53
+4   10.50.1.254             Et0/0.10                 13 00:02:11    6   100  0  67
+3   10.50.255.254           Et0/0.1000               13 00:02:12    4   100  0  62
+2   10.50.2.254             Et0/0.20                 14 00:02:12    3   100  0  66
+1   10.50.6.53              Et0/2                    10 19:13:12    1   100  0  63
+0   10.50.3.52              Et0/1                    13 19:15:31  136   816  0  13
 R51#
 R51#
 R51#
@@ -282,12 +281,12 @@ R51#show ip eigrp interfaces
 EIGRP-IPv4 VR(SPB) Address-Family Interfaces for AS(1)
                               Xmit Queue   PeerQ        Mean   Pacing Time   Multicast    Pending
 Interface              Peers  Un/Reliable  Un/Reliable  SRTT   Un/Reliable   Flow Timer   Routes
-Et0/2                    1        0/0       0/0           1       0/2           50           0
-Et0/1                    1        0/0       0/0           1       0/2           50           0
 Lo1                      0        0/0       0/0           0       0/0            0           0
-Et0/0.10                 1        0/0       0/0           1       0/2           50           0
-Et0/0.20                 1        0/0       0/0           1       0/2           50           0
-Et0/0.1000               1        0/0       0/0           1       0/2           50           0
+Et0/0.10                 1        0/0       0/0           6       0/2           50           0
+Et0/0.20                 1        0/0       0/0           3       0/2           50           0
+Et0/0.1000               1        0/0       0/0           4       0/2           50           0
+Et0/1                    1        0/0       0/0         136       0/2          684           0
+Et0/2                    1        0/0       0/0           1       0/2           50           0
 R51#
 R51#
 R51#
@@ -318,11 +317,11 @@ P 10.50.0.52/32, 1 successors, FD is 131153920
 P 10.50.6.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/2
 P 10.50.4.0/24, 4 successors, FD is 196608000
-        via 10.50.1.254 (196608000/131072000), Ethernet0/0.10
+        via 10.50.2.254 (196608000/131072000), Ethernet0/0.20
         via 10.50.3.52 (196608000/131072000), Ethernet0/1
         via 10.50.6.53 (196608000/131072000), Ethernet0/2
         via 10.50.255.254 (196608000/131072000), Ethernet0/0.1000
-        via 10.50.2.254 (196608000/131072000), Ethernet0/0.20
+        via 10.50.1.254 (196608000/131072000), Ethernet0/0.10
 P 10.50.0.51/32, 1 successors, FD is 163840
         via Connected, Loopback1
 P 10.50.5.0/24, 4 successors, FD is 196608000
@@ -332,7 +331,6 @@ P 10.50.5.0/24, 4 successors, FD is 196608000
         via 10.50.255.254 (196608000/131072000), Ethernet0/0.1000
 P 10.50.3.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/1
-
 
 
 ```
@@ -350,7 +348,7 @@ Building configuration...
 
 Current configuration : 1259 bytes
 !
-! Last configuration change at 19:21:46 UTC Sat Dec 14 2024
+! Last configuration change at 19:52:06 UTC Sat Dec 21 2024
 !
 version 15.4
 service timestamps debug datetime msec
@@ -497,23 +495,23 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is not set
 
       10.0.0.0/8 is variably subnetted, 13 subnets, 2 masks
-D        10.50.0.51/32 [90/1024640] via 10.50.3.51, 00:28:46, Ethernet0/1
+D        10.50.0.51/32 [90/1024640] via 10.50.3.51, 19:14:15, Ethernet0/1
 C        10.50.0.52/32 is directly connected, Loopback1
-D        10.50.0.53/32 [90/1024640] via 10.50.4.53, 00:28:46, Ethernet0/0
-D        10.50.0.54/32 [90/1536640] via 10.50.4.53, 00:28:46, Ethernet0/0
-D        10.50.1.0/24 [90/1536000] via 10.50.4.53, 00:28:46, Ethernet0/0
-                      [90/1536000] via 10.50.3.51, 00:28:46, Ethernet0/1
-D        10.50.2.0/24 [90/1536000] via 10.50.4.53, 00:28:46, Ethernet0/0
-                      [90/1536000] via 10.50.3.51, 00:28:46, Ethernet0/1
+D        10.50.0.53/32 [90/1024640] via 10.50.4.53, 19:14:18, Ethernet0/0
+D        10.50.0.54/32 [90/1536640] via 10.50.4.53, 00:17:43, Ethernet0/0
+D        10.50.1.0/24 [90/1536000] via 10.50.4.53, 19:14:18, Ethernet0/0
+                      [90/1536000] via 10.50.3.51, 19:14:18, Ethernet0/1
+D        10.50.2.0/24 [90/1536000] via 10.50.4.53, 19:14:18, Ethernet0/0
+                      [90/1536000] via 10.50.3.51, 19:14:18, Ethernet0/1
 C        10.50.3.0/24 is directly connected, Ethernet0/1
 L        10.50.3.52/32 is directly connected, Ethernet0/1
 C        10.50.4.0/24 is directly connected, Ethernet0/0
 L        10.50.4.52/32 is directly connected, Ethernet0/0
-D        10.50.5.0/24 [90/1536000] via 10.50.4.53, 00:28:46, Ethernet0/0
-D        10.50.6.0/24 [90/1536000] via 10.50.4.53, 00:28:46, Ethernet0/0
-                      [90/1536000] via 10.50.3.51, 00:28:46, Ethernet0/1
-D        10.50.255.0/24 [90/1536000] via 10.50.4.53, 00:28:46, Ethernet0/0
-                        [90/1536000] via 10.50.3.51, 00:28:46, Ethernet0/1
+D        10.50.5.0/24 [90/1536000] via 10.50.4.53, 19:14:15, Ethernet0/0
+D        10.50.6.0/24 [90/1536000] via 10.50.4.53, 19:14:18, Ethernet0/0
+                      [90/1536000] via 10.50.3.51, 19:14:18, Ethernet0/1
+D        10.50.255.0/24 [90/1536000] via 10.50.4.53, 19:14:18, Ethernet0/0
+                        [90/1536000] via 10.50.3.51, 19:14:18, Ethernet0/1
       172.16.0.0/16 is variably subnetted, 4 subnets, 2 masks
 C        172.16.6.0/24 is directly connected, Ethernet0/2
 L        172.16.6.52/32 is directly connected, Ethernet0/2
@@ -527,8 +525,8 @@ R52#show ip eigrp neighbors
 EIGRP-IPv4 VR(SPB) Address-Family Neighbors for AS(1)
 H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
                                                    (sec)         (ms)       Cnt Num
-1   10.50.4.53              Et0/0                    10 05:39:00    1   100  0  135
-0   10.50.3.51              Et0/1                    14 21:09:19    1   100  0  134
+1   10.50.4.53              Et0/0                    14 19:14:19    3   100  0  64
+0   10.50.3.51              Et0/1                    11 19:16:38    3   100  0  50
 R52#
 R52#
 R52#
@@ -537,9 +535,9 @@ R52#show ip eigrp interfaces
 EIGRP-IPv4 VR(SPB) Address-Family Interfaces for AS(1)
                               Xmit Queue   PeerQ        Mean   Pacing Time   Multicast    Pending
 Interface              Peers  Un/Reliable  Un/Reliable  SRTT   Un/Reliable   Flow Timer   Routes
-Et0/1                    1        0/0       0/0           1       0/2           50           0
-Et0/0                    1        0/0       0/0           1       0/2           50           0
 Lo1                      0        0/0       0/0           0       0/0            0           0
+Et0/0                    1        0/0       0/0           3       0/2           50           0
+Et0/1                    1        0/0       0/0           3       0/2           50           0
 R52#
 R52#
 R52#
@@ -576,8 +574,6 @@ P 10.50.5.0/24, 1 successors, FD is 196608000
 P 10.50.3.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/1
 
-R52#
-
 
 ```
 </details>
@@ -592,9 +588,9 @@ R52#
 R53#sh run
 Building configuration...
 
-Current configuration : 1755 bytes
+Current configuration : 1841 bytes
 !
-! Last configuration change at 16:10:38 UTC Sun Dec 15 2024
+! Last configuration change at 14:52:09 UTC Sun Dec 22 2024
 !
 version 15.4
 service timestamps debug datetime msec
@@ -695,6 +691,10 @@ router eigrp SPB
  !
  address-family ipv4 unicast autonomous-system 1
   !
+  af-interface Ethernet0/3
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
   topology base
   exit-af-topology
   network 10.50.0.53 0.0.0.0
@@ -740,7 +740,7 @@ R53#
 R53#
 R53#show ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES unset  up                    up
+Ethernet0/0                unassigned      YES manual up                    up
 Ethernet0/0.10             10.50.1.254     YES manual up                    up
 Ethernet0/0.20             10.50.2.254     YES manual up                    up
 Ethernet0/0.1000           10.50.255.254   YES manual up                    up
@@ -763,26 +763,27 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        a - application route
        + - replicated route, % - next hop override
 
-Gateway of last resort is not set
+Gateway of last resort is 0.0.0.0 to network 0.0.0.0
 
+D*    0.0.0.0/0 is a summary, 00:18:29, Null0
       10.0.0.0/8 is variably subnetted, 17 subnets, 2 masks
 D        10.50.0.51/32
-           [90/1024640] via 10.50.255.253, 00:29:20, Ethernet0/0.1000
-           [90/1024640] via 10.50.6.51, 00:29:20, Ethernet0/2
-           [90/1024640] via 10.50.2.253, 00:29:20, Ethernet0/0.20
-           [90/1024640] via 10.50.1.253, 00:29:20, Ethernet0/0.10
-D        10.50.0.52/32 [90/1024640] via 10.50.4.52, 00:29:20, Ethernet0/1
+           [90/1024640] via 10.50.255.253, 00:04:05, Ethernet0/0.1000
+           [90/1024640] via 10.50.6.51, 00:04:05, Ethernet0/2
+           [90/1024640] via 10.50.2.253, 00:04:05, Ethernet0/0.20
+           [90/1024640] via 10.50.1.253, 00:04:05, Ethernet0/0.10
+D        10.50.0.52/32 [90/1024640] via 10.50.4.52, 00:04:05, Ethernet0/1
 C        10.50.0.53/32 is directly connected, Loopback1
-D        10.50.0.54/32 [90/1024640] via 10.50.5.54, 00:30:02, Ethernet0/3
+D        10.50.0.54/32 [90/1024640] via 10.50.5.54, 00:04:05, Ethernet0/3
 C        10.50.1.0/24 is directly connected, Ethernet0/0.10
 L        10.50.1.254/32 is directly connected, Ethernet0/0.10
 C        10.50.2.0/24 is directly connected, Ethernet0/0.20
 L        10.50.2.254/32 is directly connected, Ethernet0/0.20
 D        10.50.3.0/24
-           [90/1536000] via 10.50.255.253, 00:29:20, Ethernet0/0.1000
-           [90/1536000] via 10.50.4.52, 00:29:20, Ethernet0/1
-           [90/1536000] via 10.50.2.253, 00:29:20, Ethernet0/0.20
-           [90/1536000] via 10.50.1.253, 00:29:20, Ethernet0/0.10
+           [90/1536000] via 10.50.255.253, 00:04:05, Ethernet0/0.1000
+           [90/1536000] via 10.50.6.51, 00:04:05, Ethernet0/2
+           [90/1536000] via 10.50.4.52, 00:04:05, Ethernet0/1
+           [90/1536000] via 10.50.2.253, 00:04:05, Ethernet0/0.20
 C        10.50.4.0/24 is directly connected, Ethernet0/1
 L        10.50.4.53/32 is directly connected, Ethernet0/1
 C        10.50.5.0/24 is directly connected, Ethernet0/3
@@ -799,12 +800,12 @@ R53#show ip eigrp neighbors
 EIGRP-IPv4 VR(SPB) Address-Family Neighbors for AS(1)
 H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
                                                    (sec)         (ms)       Cnt Num
-5   10.50.255.253           Et0/0.1000               10 05:33:06    2   100  0  131
-4   10.50.2.253             Et0/0.20                 12 05:33:07    1   100  0  132
-3   10.50.1.253             Et0/0.10                 13 05:33:07    1   100  0  133
-2   10.50.5.54              Et0/3                    11 05:35:33    1   100  0  20
-1   10.50.4.52              Et0/1                    13 05:39:36    1   100  0  55
-0   10.50.6.51              Et0/2                    14 05:39:41    1   100  0  130
+5   10.50.1.253             Et0/0.10                 10 00:04:04    5   100  0  53
+4   10.50.255.253           Et0/0.1000               12 00:04:05    5   100  0  49
+3   10.50.2.253             Et0/0.20                 13 00:04:05    4   100  0  52
+2   10.50.5.54              Et0/3                    14 00:18:30    5   100  0  3
+1   10.50.6.51              Et0/2                    11 19:15:05  137   822  0  51
+0   10.50.4.52              Et0/1                    12 19:15:05    1   100  0  12
 R53#
 R53#
 R53#
@@ -814,12 +815,12 @@ EIGRP-IPv4 VR(SPB) Address-Family Interfaces for AS(1)
                               Xmit Queue   PeerQ        Mean   Pacing Time   Multicast    Pending
 Interface              Peers  Un/Reliable  Un/Reliable  SRTT   Un/Reliable   Flow Timer   Routes
 Lo1                      0        0/0       0/0           0       0/0            0           0
-Et0/2                    1        0/0       0/0           1       0/2           50           0
+Et0/0.10                 1        0/0       0/0           5       0/2           50           0
+Et0/0.20                 1        0/0       0/0           4       0/2           50           0
+Et0/0.1000               1        0/0       0/0           5       0/2           50           0
 Et0/1                    1        0/0       0/0           1       0/2           50           0
-Et0/3                    1        0/0       0/0           1       0/2           50           0
-Et0/0.10                 1        0/0       0/0           1       0/2           50           0
-Et0/0.20                 1        0/0       0/0           1       0/2           50           0
-Et0/0.1000               1        0/0       0/0           2       0/2           50           0
+Et0/2                    1        0/0       0/0         137       0/2          688           0
+Et0/3                    1        0/0       0/0           5       0/2           50           0
 R53#
 R53#
 R53#
@@ -841,6 +842,8 @@ P 10.50.2.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/0.20
 P 10.50.0.52/32, 1 successors, FD is 131153920
         via 10.50.4.52 (131153920/163840), Ethernet0/1
+P 0.0.0.0/0, 1 successors, FD is 163840
+        via Summary (163840/0), Null0
 P 10.50.6.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/2
 P 10.50.4.0/24, 1 successors, FD is 131072000
@@ -853,17 +856,221 @@ P 10.50.0.51/32, 4 successors, FD is 131153920
 P 10.50.5.0/24, 1 successors, FD is 131072000
         via Connected, Ethernet0/3
 P 10.50.3.0/24, 4 successors, FD is 196608000
-        via 10.50.1.253 (196608000/131072000), Ethernet0/0.10
         via 10.50.2.253 (196608000/131072000), Ethernet0/0.20
         via 10.50.4.52 (196608000/131072000), Ethernet0/1
-        via 10.50.255.253 (196608000/131072000), Ethernet0/0.1000
         via 10.50.6.51 (196608000/131072000), Ethernet0/2
+        via 10.50.255.253 (196608000/131072000), Ethernet0/0.1000
+        via 10.50.1.253 (196608000/131072000), Ethernet0/0.10
 
-R53#
 
 
 ```
 </details>
+
+
+### R54
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
+R54#sh run
+Building configuration...
+
+Current configuration : 1171 bytes
+!
+! Last configuration change at 14:51:51 UTC Sun Dec 22 2024
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R54
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1
+ ip address 10.50.0.54 255.255.255.255
+!
+interface Ethernet0/0
+ ip address 10.50.5.54 255.255.255.0
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+!
+router eigrp SPB
+ !
+ address-family ipv4 unicast autonomous-system 1
+  !
+  topology base
+  exit-af-topology
+  network 10.50.0.54 0.0.0.0
+  network 10.50.5.0 0.0.0.255
+  eigrp router-id 10.50.0.54
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+
+R54#
+R54#
+R54#
+R54#show ip interface brief
+Interface                  IP-Address      OK? Method Status                Protocol
+Ethernet0/0                10.50.5.54      YES manual up                    up
+Ethernet0/1                unassigned      YES unset  administratively down down
+Ethernet0/2                unassigned      YES unset  administratively down down
+Ethernet0/3                unassigned      YES unset  administratively down down
+Loopback1                  10.50.0.54      YES manual up                    up
+R54#
+R54#
+R54#
+R54#
+R54#show ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 10.50.5.53 to network 0.0.0.0
+
+D*    0.0.0.0/0 [90/1024640] via 10.50.5.53, 00:02:05, Ethernet0/0
+      10.0.0.0/8 is variably subnetted, 3 subnets, 2 masks
+C        10.50.0.54/32 is directly connected, Loopback1
+C        10.50.5.0/24 is directly connected, Ethernet0/0
+L        10.50.5.54/32 is directly connected, Ethernet0/0
+R54#
+R54#
+R54#
+R54#
+R54#show ip eigrp neighbors
+EIGRP-IPv4 VR(SPB) Address-Family Neighbors for AS(1)
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+0   10.50.5.53              Et0/0                    11 00:02:06 1596  5000  0  11
+R54#
+R54#
+R54#
+R54#
+R54#show ip eigrp interfaces
+EIGRP-IPv4 VR(SPB) Address-Family Interfaces for AS(1)
+                              Xmit Queue   PeerQ        Mean   Pacing Time   Multicast    Pending
+Interface              Peers  Un/Reliable  Un/Reliable  SRTT   Un/Reliable   Flow Timer   Routes
+Lo1                      0        0/0       0/0           0       0/0            0           0
+Et0/0                    1        0/0       0/0        1596       0/2         7984           0
+R54#
+R54#
+R54#
+R54#
+R54#show ip eigrp topology
+EIGRP-IPv4 VR(SPB) Topology Table for AS(1)/ID(10.50.0.54)
+Codes: P - Passive, A - Active, U - Update, Q - Query, R - Reply,
+       r - reply Status, s - sia Status
+
+P 10.50.0.54/32, 1 successors, FD is 163840
+        via Connected, Loopback1
+P 0.0.0.0/0, 1 successors, FD is 131153920
+        via 10.50.5.53 (131153920/163840), Ethernet0/0
+P 10.50.5.0/24, 1 successors, FD is 131072000
+        via Connected, Ethernet0/0
+
+
+```
+</details>
+
 
 ### SW51
 
