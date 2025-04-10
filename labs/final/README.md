@@ -1436,12 +1436,293 @@ Spoke1_192.168.1.100/24     192.168.1.1
 
 ## Конфигурации устройств филиала №2
 
+### S-Terra:Spoke2
+
+#### IPsec/IKEv2/GRE
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+version 12.4
+no service password-encryption
+!
+crypto ipsec df-bit copy
+crypto isakmp identity address
+username cscons privilege 15 password 0 csp
+aaa new-model
+!
+!
+hostname S-Terra-Spoke2
+enable password csp
+!
+!
+!
+!
+!
+logging trap debugging
+!
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+ prf sha256
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 authentication sig IKEV2-AUTH-RSA-SIG
+ identity dn
+ ca trust-point s-terra_technological_trustpoint
+ set identity mapping
+
+!
+crypto ikev2 profile IKEV2-PROFILE-RSA-SIG
+ authentication remote IKEV2-AUTH-RSA-SIG
+ authentication local IKEV2-AUTH-RSA-SIG
+ set policy IKEV2-POLICY
+!
+crypto ikev2 ipsec-proposal IKEV2-IPSEC-PROPOSAL
+ esp encryption aes-cbc-256
+ esp integrity sha256
+!
+ip access-list extended GRE_VIA_TGI0/0
+ permit gre host 172.16.2.2 each
+!
+ipv6 default filtering deny
+!
+!
+crypto dynamic-map DMVPN-TGI0/0 1
+ match address GRE_VIA_TGI0/0
+ set ikev2-ipsec-proposal IKEV2-IPSEC-PROPOSAL
+ set ikev2-profile IKEV2-PROFILE-RSA-SIG
+ set local-address 172.16.2.2
+ set mode transport
+ set dead-connection history off
+!
+crypto map VPN-TGI0/0 1 ipsec-isakmp dynamic DMVPN-TGI0/0
+!
+interface TenGigabitEthernet0/0
+ description To ISP1 (no NAT)
+ ip address 172.16.2.2 255.255.255.0
+ crypto map VPN-TGI0/0
+!
+interface TenGigabitEthernet0/1
+ description LAN
+ ip address 192.168.2.1 255.255.255.0
+!
+interface TenGigabitEthernet0/2
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/3
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/4
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/5
+ no ip address
+ shutdown
+!
+interface Tunnel0
+ ip address 10.10.10.2 255.255.255.0
+ mtu 1400
+ tunnel mode gre multipoint
+ tunnel key 1
+ offloading tx-checksumming
+ tunnel ttl 64
+ tunnel tos 0
+!
+interface Tunnel1
+ ip address 10.10.20.2 255.255.255.0
+ mtu 1400
+ tunnel mode gre multipoint
+ tunnel key 2
+ offloading tx-checksumming
+ tunnel ttl 64
+ tunnel tos 0
+!
+!
+ip route 0.0.0.0 0.0.0.0 172.16.2.1
+!
+!
+crypto pki trustpoint s-terra_technological_trustpoint
+ revocation-check crl none
+crypto pki certificate chain s-terra_technological_trustpoint
+certificate 18E83EAC6432945F7CB72922AEA5147EC1DCDCCB
+30820417308202FFA003020102021418E83EAC6432945F7CB72922AEA5147EC1
+DCDCCB300D06092A864886F70D01010B05003081923115301306035504030C0C
+5465737420526F6F74204341310B3009060355040613025255310F300D060355
+04080C064D6F73636F773113301106035504070C0A5A656C656E6F6772616431
+143012060355040A0C0B532D546572726120435350310C300A060355040B0C03
+526E443122302006092A864886F70D0109011613766E6F76696B6F7640732D74
+657272612E7275301E170D3235303332303136353831395A170D343530333135
+3136353831395A3081923115301306035504030C0C5465737420526F6F742043
+41310B3009060355040613025255310F300D06035504080C064D6F73636F7731
+13301106035504070C0A5A656C656E6F6772616431143012060355040A0C0B53
+2D546572726120435350310C300A060355040B0C03526E443122302006092A86
+4886F70D0109011613766E6F76696B6F7640732D74657272612E727530820122
+300D06092A864886F70D01010105000382010F003082010A0282010100A5C0F4
+4C2404EF2CF55FF3B8E1C61EF766BC585CB1010200BAC81E52EAF4E6C694F679
+0AF98C63CA0E897F7A05892119EF5DF178D2A34A016AADB7D848A2887CC87484
+FC6395446936BADA8CD48F85CB9AD6FA28D5D2F4ED106B353A0FE2074EEE2599
+2882539CDB64EBBD40661A1F75C120FB66E0F5CD7E00D2F30E18B9C7314B6959
+D3288BA8F40D5B651FF636E89E1BFA56A1F46D7A21182F30CF31D5323A30352B
+FE16EF39D44215273C4054B8DDCE33791DF485CECF29DC23E5D1004AC31F2E73
+0DF76980E3AE9B3B0160D3C771D3D9955B872BB14FC88396EE7EEFA801D246D9
+A78F8FF786824B431E59F4EFFE08296DAD0CCF866FF11D5EABDD382D2B020301
+0001A3633061301D0603551D0E04160414DC4FF91826C25066E36D0FF7001C44
+632C06BF32301F0603551D23041830168014DC4FF91826C25066E36D0FF7001C
+44632C06BF32300F0603551D130101FF040530030101FF300E0603551D0F0101
+FF040403020186300D06092A864886F70D01010B0500038201010049698916E7
+FD63AD4BFC0DA9B49A4EB40D84D786EF46F08B9979B256B1580AE3DD0BA84F0F
+C5B63D368CB4BF6EF317D463C2C47B71ED5825A70C8ACFD6E3F5AEC55AC10E07
+B6D7B48FBC87F27F469792C942316746FF3305ABDABA9D301A69785996052788
+FC8DB070683FECEA112296568E6C14A8CD371C15FAFF2DB0C99DC172F705C1A5
+BC27665DD185AA93AA29F71C3F7BC84FE20D53597CA90147E2F1A5FEB3D9FFB1
+122A1EDB550D0E181001635B4C1EEFE61340675B30498E894853D465F8400F6E
+6FCBCBEF73B34416F32E282D2510E029ADB4FAAA73FF095C7580B0D831B0A3CB
+9CF6001DABBB147EA3BA5EB6DAFAF3A7035E856519FB25E21E738F
+
+quit
+!
+end
+
+```
+</details>
+
+#### NHRP
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+root@S-Terra-Spoke2:~# cat /etc/opennhrp/opennhrp.conf
+interface mgre_0
+  map 10.10.10.100/24 172.16.100.2 register reregister-time 5
+  cisco-authentication secret
+  holding-time 90
+interface mgre_1
+  map 10.10.20.100/24 172.17.100.2 register reregister-time 5
+  cisco-authentication secret
+  holding-time 90
+
+```
+</details>
+
+
+#### Dynamic routing
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+frr version 9.0.4
+frr defaults traditional
+hostname S-Terra-Spoke2
+log syslog informational
+service integrated-vtysh-config
+!
+router bgp 65555
+ bgp router-id 10.10.10.2
+ bgp log-neighbor-changes
+ timers bgp 3 9
+ neighbor 10.10.10.100 remote-as 65555
+ neighbor 10.10.20.100 remote-as 65555
+ !
+ address-family ipv4 unicast
+  network 192.168.2.0/24
+  neighbor 10.10.10.100 route-map LP-200-TO-HUB1-OUT out
+ exit-address-family
+exit
+!
+route-map LP-200-TO-HUB1-OUT permit 1
+ set local-preference 200
+exit
+!
+end
+
+```
+</details>
+
+### Linux:Ext_Spoke2_ISP1
+
+#### Dynamic routing
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+frr version 9.0.5
+frr defaults traditional
+hostname sterrarouter
+log syslog informational
+service integrated-vtysh-config
+!
+interface ens2
+ ip address 172.18.2.2/24
+exit
+!
+interface ens3
+ ip address 172.16.2.1/24
+exit
+!
+router bgp 65512
+ no bgp ebgp-requires-policy
+ neighbor 172.18.2.1 remote-as 65504
+ !
+ address-family ipv4 unicast
+  redistribute connected
+ exit-address-family
+exit
+!
+end
+
+```
+</details>
+
+### Spoke2_Host1
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+Spoke2_Host1> show
+
+NAME   IP/MASK              GATEWAY                             GATEWAY
+Spoke2_192.168.2.100/24     192.168.2.1
+       fe80::250:79ff:fe66:68c0/64
+
+```
+</details>
 
 ## Конфигурации устройств филиала №3
 
+### R13
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
+```
+</details>
 
 ## Конфигурации устройств филиала №4
 
+### R13
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+
+```
+</details>
 
 ## Конфигурации устройств филиала №5
 
@@ -1454,6 +1735,7 @@ Spoke1_192.168.1.100/24     192.168.1.1
 
 ```
 </details>
+
 
 ### R13
 
