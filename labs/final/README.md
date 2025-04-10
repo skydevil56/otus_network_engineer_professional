@@ -71,6 +71,74 @@ Cisco:Ext_Spoke5_ISP1 и Cisco:Ext_Spoke5_ISP2) в режиме основной
 1. iBGP/eBGP/OSPF
 1. NAT/IP SLA/VRF/MultiWAN (С-Терра)
 
+## Работа с сертификатами (PKI)
+
+### На Cisco
+
+Генерация закрытого ключа и запроса на сертификат:
+
+```
+crypto key generate rsa label VPN modulus 2048
+
+crypto pki trustpoint CA
+enrollment terminal
+subject-name cn=<common name>
+revocation-check none
+rsakeypair VPN
+exit
+
+crypto pki authenticate CA
+
+-----BEGIN CERTIFICATE-----
+            < Тут нужно вставить сертификат CA в base64, брать на Hub1 в /root/ca/certs/ca.cert.cer >
+-----END CERTIFICATE-----
+
+
+crypto pki enroll CA
+
+-----BEGIN CERTIFICATE REQUEST-----
+
+            < Тут будет запрос на локальный сертификат в base64 >
+
+-----END CERTIFICATE REQUEST-----
+```
+
+Запрос на локальный сертификат в base64 нужно принести на Hub1 в /root/ca/csr (тут должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
+
+```
+cd /root/ca/
+openssl ca -config openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in csr/<common name>.pem -out certs/<common name>.cer
+```
+
+Локальный сертификат (/root/ca/certs/<common name>.cer) в формате base64 нужно импортировать на Cisco (после ввода команды будет предложено ввести локальный сертификат в формате base64):
+
+```
+crypto pki import CA certificate
+```
+
+
+### На "С-Терра Шлюз"
+
+Генерация закрытого ключа и запроса на сертификат (запрос будет в файле /root/<common name>.request в формате base64):
+
+```
+cert_mgr create -subj "CN=<common name>" -RSA -2048 -fb64 /root/<common name>.request
+```
+
+Запрос на локальный сертификат в base64 нужно принести на Hub1 в /root/ca/csr (тут должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
+
+```
+cd /root/ca/
+openssl ca -config openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in csr/<common name>.pem -out certs/<common name>.cer
+```
+
+Локальный сертификат (/root/ca/certs/<common name>.cer) и сертификат УЦ (/root/ca/certs/ca.cert.cer) в формате base64 нужно импортировать в базу Продукта "С-Терра Шлюз":
+
+```
+cert_mgr import -l -f <common name>.cer
+cert_mgr import -t -f ca.cert.cer
+```
+
 ## Проверка работоспособности
 
 ## Конфигурации устройств центрального офиса
@@ -286,7 +354,130 @@ end
 ```
 </details>
 
+<details>
+  <summary>Конфигурация УЦ (Certificate Authority)</summary>
 
+```
+mkdir /root/ca
+cd /root/ca 
+mkdir certs crl newcerts private csr
+chmod 700 private 
+touch index.txt 
+echo 1000 > serial
+
+cat << "__EOF__" > openssl.cnf 
+# OpenSSL root CA configuration file.
+# Copy to `/root/ca/openssl.cnf`.
+
+[ ca ]
+# `man ca`
+default_ca = CA_default
+
+[ CA_default ]
+# Directory and file locations.
+dir               = /root/ca
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/newcerts
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = $dir/private/.rand
+
+# The root key and root certificate.
+private_key       = $dir/private/ca.key.pem
+certificate       = $dir/certs/ca.cert.cer
+
+# For certificate revocation lists.
+crlnumber         = $dir/crlnumber
+crl               = $dir/crl/ca.crl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md        = sha256
+
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 375
+preserve          = no
+policy            = policy_loose
+
+# This extension is copied from the subjectAltName query
+copy_extensions   = copy
+
+[ policy_loose ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+# Options for the `req` tool (`man req`).
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md          = sha256
+
+# Extension to add when the -x509 option is used.
+x509_extensions     = v3_ca
+
+[ req_distinguished_name ]
+# See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
+commonName                      = Test CA
+countryName                     = RU
+stateOrProvinceName             = State or Province Name
+localityName                    = Locality Name
+0.organizationName              = Organization Name
+organizationalUnitName          = Organizational Unit Name
+emailAddress                    = Email Address
+
+# Optionally, specify some defaults.
+countryName_default             =
+stateOrProvinceName_default     =
+localityName_default            =
+0.organizationName_default      =
+organizationalUnitName_default  =
+emailAddress_default            =
+
+[ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints       = critical, CA:true
+keyUsage               = critical, digitalSignature, cRLSign, keyCertSign
+
+[ usr_cert ]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints        = CA:FALSE
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid,issuer:always
+keyUsage                = digitalSignature
+extendedKeyUsage        = clientAuth 
+
+[ server_cert ]
+# Extensions for server certificates (`man x509v3_config`).
+basicConstraints        = CA:FALSE 
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid,issuer:always
+keyUsage                = digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth 
+
+[ crl_ext ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier = keyid:always 
+__EOF__
+
+openssl genrsa -aes256 -out private/ca.key.pem 2048
+chmod 400 private/ca.key.pem
+openssl req -config openssl.cnf -key private/ca.key.pem -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.cert.cer
+chmod 444 certs/ca.cert.cer
+```
+</details>
 
 ### Cisco:Hub2
 
@@ -909,10 +1100,8 @@ end
 
 ### Linux:Ext_Hub2_ISP2
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.5
@@ -1237,6 +1426,8 @@ INTIF="ens3"
 LAN_RANGE="100.64.1.0/24"
 INET_IP1="172.16.1.2"
 IPSECGW="100.64.1.2"
+
+iptables -F -t nat
 ### SNAT ###
 iptables -t nat -A POSTROUTING -o $EXTIF -j SNAT --to-source $INET_IP1
 ### DNAT ###
@@ -1246,6 +1437,7 @@ iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 500 -j DNAT --to-de
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 4500 -j DNAT --to-destination $IPSECGW:4500
 # GRE
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p gre  -j DNAT --to-destination $IPSECGW
+
 netfilter-persistent save
 
 ```
@@ -1888,9 +2080,15 @@ end
 ```
 EXTIF1="ens2"
 EXTIF2="ens3"
+LAN_RANGE="100.64.3.0/24"
+INET_IP1="172.16.3.2"
+INET_IP2="172.17.3.2"
+IPSECGW="100.64.3.2"
+
+iptables -F -t nat
+### SNAT ###
 iptables -t nat -A POSTROUTING -s $LAN_RANGE -o $EXTIF1 -j SNAT --to-source $INET_IP1
 iptables -t nat -A POSTROUTING -s $LAN_RANGE -o $EXTIF2 -j SNAT --to-source $INET_IP2
-iptables -L -n -v -t nat
 ### DNAT ###
 # IKE/500
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 500 -j DNAT --to-destination $IPSECGW:500
@@ -1901,7 +2099,9 @@ iptables -t nat -A PREROUTING --dst $INET_IP2 -p udp --dport 4500 -j DNAT --to-d
 # GRE
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p gre  -j DNAT --to-destination $IPSECGW
 iptables -t nat -A PREROUTING --dst $INET_IP2 -p gre  -j DNAT --to-destination $IPSECGW
+
 netfilter-persistent save
+
 ```
 </details>
 
@@ -2286,6 +2486,8 @@ INTIF="ens3"
 LAN_RANGE="100.64.4.0/24"
 INET_IP1="172.16.4.2"
 IPSECGW="100.64.4.2"
+
+iptables -F -t nat
 ### SNAT ###
 iptables -t nat -A POSTROUTING -o $EXTIF -j SNAT --to-source $INET_IP1
 ### DNAT ###
@@ -2295,6 +2497,7 @@ iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 500 -j DNAT --to-de
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 4500 -j DNAT --to-destination $IPSECGW:4500
 # GRE
 iptables -t nat -A PREROUTING --dst $INET_IP1 -p gre  -j DNAT --to-destination $IPSECGW
+
 netfilter-persistent save
 ```
 </details>
