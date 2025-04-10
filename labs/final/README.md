@@ -22,7 +22,7 @@
 ## Версии ПО
 
 - PNETlab - 5.3.11
-- "С-Терра Шлюз" версии 5.0
+- "С-Терра Шлюз" версии 5.0.25805
 - Роутеры - Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.4(2)T4
 - Коммутаторы - Cisco IOS Software, Linux Software (I86BI_LINUXL2-ADVENTERPRISEK9-M), Version 15.2(CML_NIGHTLY_20150703)
 - ПК - VPC
@@ -2389,213 +2389,966 @@ Spoke4_192.168.4.100/24     192.168.4.1
 
 ## Конфигурации устройств филиала №5
 
+
+### Cisco:Spoke5
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Cisco:Spoke5
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+ip vrf ISP2
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+crypto pki trustpoint CA
+ enrollment terminal
+ subject-name cn=Spoke5
+ revocation-check none
+ rsakeypair VPN
+!
+!
+crypto pki certificate chain CA
+ certificate 1003
+  30820447 3082032F A0030201 02020210 03300D06 092A8648 86F70D01 010B0500
+  30819231 15301306 03550403 0C0C5465 73742052 6F6F7420 4341310B 30090603
+  55040613 02525531 0F300D06 03550408 0C064D6F 73636F77 31133011 06035504
+  070C0A5A 656C656E 6F677261 64311430 12060355 040A0C0B 532D5465 72726120
+  43535031 0C300A06 0355040B 0C03526E 44312230 2006092A 864886F7 0D010901
+  1613766E 6F76696B 6F764073 2D746572 72612E72 75301E17 0D323530 33323131
+  36323832 395A170D 32363033 33313136 32383239 5A301131 0F300D06 03550403
+  13065370 6F6B6535 30820122 300D0609 2A864886 F70D0101 01050003 82010F00
+  3082010A 02820101 00AF45F3 A4FE4315 B6DA0F55 0BDCD4C2 BA417272 D43FBDCB
+  A76DCB48 9582301B 89B6A4A7 0B8C2808 9DDBBEB8 FBC619D2 C153C7C9 7DF9E711
+  0C926EA4 FA42D8E5 D1AFD6DE 5D546716 61423FFC 9DC6EF92 C216DDA0 84532104
+  3E06D25C F54166C0 A3A83953 49B15CDC 502975BB 5E4D490C CA8ABD4F A3484062
+  76C37D85 379298E6 9376BF75 31E402B6 DEBEB6B2 759CCB2F 50605F3C 5499FAD5
+  C9DE6DFE B7CC5851 F241CF11 D4E9E02E A757E4C8 FC732277 931217FF E0D3F237
+  7F766549 8707A6FC 2641D28C 0D080445 50C46E92 F29717FF 813FD137 A36D49C0
+  E69F4911 058B3ED1 F23D002C 0506E7DE DA3BF9E9 9469B21E 98F3B986 802A7419
+  F9CE00F1 F7C9EB7E 9F020301 0001A382 01253082 01213009 0603551D 13040230
+  00301D06 03551D0E 04160414 9CF572B3 E2C7D81F B42DA30B 607053D8 A4CCF3A6
+  3081D206 03551D23 0481CA30 81C78014 DC4FF918 26C25066 E36D0FF7 001C4463
+  2C06BF32 A18198A4 81953081 92311530 13060355 04030C0C 54657374 20526F6F
+  74204341 310B3009 06035504 06130252 55310F30 0D060355 04080C06 4D6F7363
+  6F773113 30110603 5504070C 0A5A656C 656E6F67 72616431 14301206 0355040A
+  0C0B532D 54657272 61204353 50310C30 0A060355 040B0C03 526E4431 22302006
+  092A8648 86F70D01 09011613 766E6F76 696B6F76 40732D74 65727261 2E727582
+  1418E83E AC643294 5F7CB729 22AEA514 7EC1DCDC CB300B06 03551D0F 04040302
+  05A03013 0603551D 25040C30 0A06082B 06010505 07030130 0D06092A 864886F7
+  0D01010B 05000382 01010046 F99C2883 39A53BC4 FC0D948A 737956F7 7900B9EE
+  E13DB988 23CD9DB9 E55882F6 3117277D 411CABFE 9A86019F D0B21AF9 FF955B86
+  17226A1A 462B8F50 4036E34A 66B243E8 2552AB55 BC362F7D DB892C26 1C0DAAF5
+  FB56F61D F23FC8AC E48B101B A84C82F8 EF0DC474 E9B4FAE2 1CDE828B 08605861
+  A94E167F 235AF5A0 72BBBE2F 4DD0CDB2 A7388867 DD3DD356 FF95457A B520730D
+  4DB0BC24 2E7DF0DE CCE9F2AA B3FF547D 4081DFE5 127D8221 13794683 969D3CDC
+  AE0F2EBB FCFD1DD5 A012A6D6 8B733F63 74D253CB C1425178 8016DA0A E9BC0634
+  297425A4 85E98C21 F7D85B9D CC34BE93 2F3261BF 5EAD8671 01AA9442 B29243C0
+  1C520BFF CA7B9FC7 5E99F4
+        quit
+ certificate ca 18E83EAC6432945F7CB72922AEA5147EC1DCDCCB
+  30820417 308202FF A0030201 02021418 E83EAC64 32945F7C B72922AE A5147EC1
+  DCDCCB30 0D06092A 864886F7 0D01010B 05003081 92311530 13060355 04030C0C
+  54657374 20526F6F 74204341 310B3009 06035504 06130252 55310F30 0D060355
+  04080C06 4D6F7363 6F773113 30110603 5504070C 0A5A656C 656E6F67 72616431
+  14301206 0355040A 0C0B532D 54657272 61204353 50310C30 0A060355 040B0C03
+  526E4431 22302006 092A8648 86F70D01 09011613 766E6F76 696B6F76 40732D74
+  65727261 2E727530 1E170D32 35303332 30313635 3831395A 170D3435 30333135
+  31363538 31395A30 81923115 30130603 5504030C 0C546573 7420526F 6F742043
+  41310B30 09060355 04061302 5255310F 300D0603 5504080C 064D6F73 636F7731
+  13301106 03550407 0C0A5A65 6C656E6F 67726164 31143012 06035504 0A0C0B53
+  2D546572 72612043 5350310C 300A0603 55040B0C 03526E44 31223020 06092A86
+  4886F70D 01090116 13766E6F 76696B6F 7640732D 74657272 612E7275 30820122
+  300D0609 2A864886 F70D0101 01050003 82010F00 3082010A 02820101 00A5C0F4
+  4C2404EF 2CF55FF3 B8E1C61E F766BC58 5CB10102 00BAC81E 52EAF4E6 C694F679
+  0AF98C63 CA0E897F 7A058921 19EF5DF1 78D2A34A 016AADB7 D848A288 7CC87484
+  FC639544 6936BADA 8CD48F85 CB9AD6FA 28D5D2F4 ED106B35 3A0FE207 4EEE2599
+  2882539C DB64EBBD 40661A1F 75C120FB 66E0F5CD 7E00D2F3 0E18B9C7 314B6959
+  D3288BA8 F40D5B65 1FF636E8 9E1BFA56 A1F46D7A 21182F30 CF31D532 3A30352B
+  FE16EF39 D4421527 3C4054B8 DDCE3379 1DF485CE CF29DC23 E5D1004A C31F2E73
+  0DF76980 E3AE9B3B 0160D3C7 71D3D995 5B872BB1 4FC88396 EE7EEFA8 01D246D9
+  A78F8FF7 86824B43 1E59F4EF FE08296D AD0CCF86 6FF11D5E ABDD382D 2B020301
+  0001A363 3061301D 0603551D 0E041604 14DC4FF9 1826C250 66E36D0F F7001C44
+  632C06BF 32301F06 03551D23 04183016 8014DC4F F91826C2 5066E36D 0FF7001C
+  44632C06 BF32300F 0603551D 130101FF 04053003 0101FF30 0E060355 1D0F0101
+  FF040403 02018630 0D06092A 864886F7 0D01010B 05000382 01010049 698916E7
+  FD63AD4B FC0DA9B4 9A4EB40D 84D786EF 46F08B99 79B256B1 580AE3DD 0BA84F0F
+  C5B63D36 8CB4BF6E F317D463 C2C47B71 ED5825A7 0C8ACFD6 E3F5AEC5 5AC10E07
+  B6D7B48F BC87F27F 469792C9 42316746 FF3305AB DABA9D30 1A697859 96052788
+  FC8DB070 683FECEA 11229656 8E6C14A8 CD371C15 FAFF2DB0 C99DC172 F705C1A5
+  BC27665D D185AA93 AA29F71C 3F7BC84F E20D5359 7CA90147 E2F1A5FE B3D9FFB1
+  122A1EDB 550D0E18 1001635B 4C1EEFE6 1340675B 30498E89 4853D465 F8400F6E
+  6FCBCBEF 73B34416 F32E282D 2510E029 ADB4FAAA 73FF095C 7580B0D8 31B0A3CB
+  9CF6001D ABBB147E A3BA5EB6 DAFAF3A7 035E8565 19FB25E2 1E738F
+        quit
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+track 1 ip sla 1 reachability
+ delay down 10 up 10
+!
+ip tcp synwait-time 5
+!
+!
+crypto ikev2 proposal 1
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy 1
+ proposal 1
+crypto ikev2 policy 2
+ match fvrf ISP2
+ proposal 1
+!
+!
+crypto ikev2 profile IKEV2-PROFILE
+ match identity remote any
+ identity local dn
+ authentication remote rsa-sig
+ authentication local rsa-sig
+ pki trustpoint CA
+!
+crypto ikev2 profile IKEV2-PROFILE-ISP2
+ match fvrf ISP2
+ match identity remote any
+ identity local dn
+ authentication remote rsa-sig
+ authentication local rsa-sig
+ pki trustpoint CA
+!
+crypto ikev2 dpd 10 2 on-demand
+crypto ikev2 fragmentation mtu 1024
+!
+!
+crypto ipsec transform-set ENCRYPT_AND_INTEGRITY esp-aes 256 esp-sha256-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN
+ set transform-set ENCRYPT_AND_INTEGRITY
+ set ikev2-profile IKEV2-PROFILE
+!
+crypto ipsec profile DMVPN2
+ set transform-set ENCRYPT_AND_INTEGRITY
+ set ikev2-profile IKEV2-PROFILE-ISP2
+!
+!
+!
+!
+!
+!
+!
+interface Tunnel0
+ ip address 10.10.10.5 255.255.255.0
+ no ip redirects
+ ip nhrp authentication secret
+ ip nhrp network-id 1
+ ip nhrp holdtime 90
+ ip nhrp nhs 10.10.10.100 nbma 172.16.100.2
+ tunnel source Ethernet0/0
+ tunnel mode gre multipoint
+ tunnel key 1
+ tunnel route-via Ethernet0/0 mandatory
+ tunnel ttl 64
+ tunnel protection ipsec profile DMVPN
+!
+interface Tunnel1
+ ip address 10.10.20.5 255.255.255.0
+ no ip redirects
+ ip nhrp authentication secret
+ ip nhrp network-id 2
+ ip nhrp holdtime 90
+ ip nhrp nhs 10.10.20.100 nbma 172.17.100.2
+ tunnel source Ethernet0/1
+ tunnel mode gre multipoint
+ tunnel key 2
+ tunnel ttl 64
+ tunnel vrf ISP2
+ tunnel protection ipsec profile DMVPN2
+!
+interface Ethernet0/0
+ description To ISP1 (no NAT)
+ ip address 172.16.5.2 255.255.255.0
+!
+interface Ethernet0/1
+ description To ISP2 (NAT)
+ ip vrf forwarding ISP2
+ ip address 100.64.5.2 255.255.255.0
+!
+interface Ethernet0/2
+ description LAN
+ ip address 192.168.5.1 255.255.255.0
+!
+interface Ethernet0/3
+ no ip address
+!
+router bgp 65555
+ bgp router-id 10.10.10.5
+ bgp log-neighbor-changes
+ timers bgp 3 9
+ neighbor 10.10.10.100 remote-as 65555
+ neighbor 10.10.20.100 remote-as 65555
+ !
+ address-family ipv4
+  network 192.168.5.0
+  neighbor 10.10.10.100 activate
+  neighbor 10.10.10.100 route-map LP-200-TO-HUB1-OUT out
+  neighbor 10.10.20.100 activate
+ exit-address-family
+!
+ip local policy route-map LOCAL_IP_SLA_TRAFFIC-VIA-E0/0
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 172.16.5.1 track 1
+ip route vrf ISP2 0.0.0.0 0.0.0.0 100.64.5.1
+!
+ip access-list extended TRAFFIC-TO-CHECK-LINK-VIA-E0/0
+ permit icmp host 172.16.5.2 host 172.16.100.2
+!
+ip sla 1
+ icmp-echo 172.16.100.2 source-interface Ethernet0/0
+ tos 46
+ threshold 1000
+ timeout 1000
+ frequency 1
+ip sla schedule 1 life forever start-time now
+!
+route-map LP-200-TO-HUB1-OUT permit 1
+ set local-preference 200
+!
+route-map LOCAL_IP_SLA_TRAFFIC-VIA-E0/0 permit 10
+ description To pass local IP SLA traffic via Ethernet0/0
+ match ip address TRAFFIC-TO-CHECK-LINK-VIA-E0/0
+ set ip next-hop 172.16.5.1
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+end
+```
+</details>
+
+
+### Cisco:Ext_Spoke5_ISP1
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Cisco:Ext_Spoke5_ISP1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ ip address 172.18.5.2 255.255.255.0
+!
+interface Ethernet0/1
+ ip address 172.16.5.1 255.255.255.0
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/3
+ no ip address
+!
+router bgp 65515
+ bgp log-neighbor-changes
+ redistribute connected
+ neighbor 172.18.5.1 remote-as 65503
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 172.18.5.1
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+
+```
+</details>
+
+
+### Cisco:Ext_Spoke5_ISP2
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Cisco:Ext_Spoke5_ISP2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ ip address 172.17.5.2 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Ethernet0/1
+ ip address 100.64.5.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/3
+ no ip address
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source static 100.64.5.2 172.17.5.2
+ip route 0.0.0.0 0.0.0.0 172.17.5.1
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+
+```
+</details>
+
 ### Spoke5_Host1
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
+Spoke5_Host1> show
+
+NAME   IP/MASK              GATEWAY                             GATEWAY
+Spoke5_192.168.5.100/24     192.168.5.1
+       fe80::250:79ff:fe66:68c2/64
 
 ```
 </details>
 
+## Конфигурации устройств, эмулирующих Интернет 
 
-### R13
+### Cisco:Cloud_R1
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Cloud_R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ ip address 172.31.255.1 255.255.255.252
+!
+interface Ethernet0/1
+ ip address 172.31.255.9 255.255.255.252
+!
+interface Ethernet0/2
+ ip address 172.31.255.5 255.255.255.252
+!
+interface Ethernet0/3
+ ip address 172.16.100.1 255.255.255.0
+!
+interface Ethernet1/0
+ ip address 172.16.1.1 255.255.255.0
+!
+interface Ethernet1/1
+ no ip address
+!
+interface Ethernet1/2
+ no ip address
+!
+interface Ethernet1/3
+ no ip address
+!
+router bgp 65501
+ bgp log-neighbor-changes
+ neighbor 172.31.255.2 remote-as 65502
+ neighbor 172.31.255.6 remote-as 65503
+ neighbor 172.31.255.10 remote-as 65504
+ !
+ address-family ipv4
+  redistribute connected
+  neighbor 172.31.255.2 activate
+  neighbor 172.31.255.6 activate
+  neighbor 172.31.255.10 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
 
 ```
 </details>
 
-### R13
+### Linux:Cloud_R2
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
+frr version 9.0.5
+frr defaults traditional
+hostname sterrarouter
+log syslog informational
+service integrated-vtysh-config
+!
+interface ens2
+ ip address 172.31.255.2/30
+exit
+!
+interface ens3
+ ip address 172.31.255.17/30
+exit
+!
+interface ens4
+ ip address 172.31.255.13/30
+exit
+!
+interface ens5
+ ip address 172.18.100.1/24
+exit
+!
+interface ens6
+ ip address 172.17.5.1/24
+exit
+!
+router bgp 65502
+ bgp log-neighbor-changes
+ no bgp ebgp-requires-policy
+ neighbor 172.18.100.2 remote-as 65522
+ neighbor 172.31.255.1 remote-as 65501
+ neighbor 172.31.255.14 remote-as 65504
+ neighbor 172.31.255.18 remote-as 65503
+ !
+ address-family ipv4 unicast
+  redistribute connected
+ exit-address-family
+exit
+!
+end
 
 ```
 </details>
 
-### R13
+### Cisco:Cloud_R3
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Cloud_R3
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+!
+!
 
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+no cdp log mismatch duplex
+!
+ip tcp synwait-time 5
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ ip address 172.31.255.18 255.255.255.252
+!
+interface Ethernet0/1
+ ip address 172.31.255.22 255.255.255.252
+!
+interface Ethernet0/2
+ ip address 172.31.255.6 255.255.255.252
+!
+interface Ethernet0/3
+ ip address 172.16.4.1 255.255.255.0
+!
+interface Ethernet1/0
+ ip address 172.18.5.1 255.255.255.0
+!
+interface Ethernet1/1
+ ip address 172.17.3.1 255.255.255.0
+!
+interface Ethernet1/2
+ no ip address
+!
+interface Ethernet1/3
+ no ip address
+!
+router bgp 65503
+ bgp log-neighbor-changes
+ neighbor 172.18.5.2 remote-as 65515
+ neighbor 172.31.255.5 remote-as 65501
+ neighbor 172.31.255.17 remote-as 65502
+ neighbor 172.31.255.21 remote-as 65504
+ !
+ address-family ipv4
+  redistribute connected
+  neighbor 172.18.5.2 activate
+  neighbor 172.31.255.5 activate
+  neighbor 172.31.255.17 activate
+  neighbor 172.31.255.21 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
 ```
 </details>
 
-### R13
+### Linux:Cloud_R4
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
-
-```
-</details>
-
-### R13
-
-<details>
-  <summary>Конфигурация</summary>
-
-```
+frr version 9.0.5
+frr defaults traditional
+hostname sterrarouter
+log syslog informational
+service integrated-vtysh-config
+!
+interface ens2
+ ip address 172.31.255.14/30
+exit
+!
+interface ens3
+ ip address 172.31.255.21/30
+exit
+!
+interface ens4
+ ip address 172.31.255.10/30
+exit
+!
+interface ens5
+ ip address 172.18.1.1/24
+exit
+!
+interface ens6
+ ip address 172.18.2.1/24
+exit
+!
+interface ens7
+ ip address 172.16.3.1/24
+exit
+!
+router bgp 65504
+ bgp log-neighbor-changes
+ no bgp ebgp-requires-policy
+ neighbor 172.18.1.2 remote-as 65511
+ neighbor 172.18.2.2 remote-as 65512
+ neighbor 172.31.255.9 remote-as 65501
+ neighbor 172.31.255.13 remote-as 65502
+ neighbor 172.31.255.22 remote-as 65503
+ !
+ address-family ipv4 unicast
+  redistribute connected
+ exit-address-family
+exit
+!
+end
 
 ```
 </details>
