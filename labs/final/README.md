@@ -1702,19 +1702,355 @@ Spoke2_192.168.2.100/24     192.168.2.1
 
 ## Конфигурации устройств филиала №3
 
-### R13
+### S-Terra:Spoke3
+
+#### IPsec/IKEv2/GRE
 
 <details>
   <summary>Конфигурация</summary>
 
 ```
+!
+version 12.4
+no service password-encryption
+!
+crypto ipsec df-bit copy
+crypto isakmp identity address
+username cscons privilege 15 password 0 csp
+aaa new-model
+!
+!
+hostname S-Terra-Spoke3
+enable password csp
+!
+!
+!
+!
+!
+logging trap debugging
+!
+!
+crypto ikev2 proposal IKEV2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+ prf sha256
+!
+crypto ikev2 policy IKEV2-POLICY
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 authentication sig IKEV2-AUTH-RSA-SIG
+ identity dn
+ ca trust-point s-terra_technological_trustpoint
+ set identity mapping
+
+!
+crypto ikev2 profile IKEV2-PROFILE-RSA-SIG
+ authentication remote IKEV2-AUTH-RSA-SIG
+ authentication local IKEV2-AUTH-RSA-SIG
+ set policy IKEV2-POLICY
+!
+crypto ikev2 ipsec-proposal IKEV2-IPSEC-PROPOSAL
+ esp encryption aes-cbc-256
+ esp integrity sha256
+!
+ip access-list extended GRE_VIA_TGI0/0
+ permit gre host 100.64.3.2 each
+!
+ipv6 default filtering deny
+!
+!
+crypto dynamic-map DMVPN-TGI0/0 1
+ match address GRE_VIA_TGI0/0
+ set ikev2-ipsec-proposal IKEV2-IPSEC-PROPOSAL
+ set ikev2-profile IKEV2-PROFILE-RSA-SIG
+ set mode transport
+ set dead-connection history off
+!
+crypto map VPN-TGI0/0 1 ipsec-isakmp dynamic DMVPN-TGI0/0
+!
+interface TenGigabitEthernet0/0
+ description To ISP (NAT)
+ ip address 100.64.3.2 255.255.255.0
+ crypto map VPN-TGI0/0
+!
+interface TenGigabitEthernet0/1
+ description LAN
+ ip address 192.168.3.1 255.255.255.0
+!
+interface TenGigabitEthernet0/2
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/3
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/4
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/5
+ no ip address
+ shutdown
+!
+interface Tunnel0
+ ip address 10.10.10.3 255.255.255.0
+ mtu 1400
+ tunnel mode gre multipoint
+ tunnel key 1
+ offloading tx-checksumming
+ tunnel ttl 64
+ tunnel tos 0
+!
+interface Tunnel1
+ ip address 10.10.20.3 255.255.255.0
+ mtu 1400
+ tunnel mode gre multipoint
+ tunnel key 2
+ offloading tx-checksumming
+ tunnel ttl 64
+ tunnel tos 0
+!
+!
+ip route 0.0.0.0 0.0.0.0 100.64.3.1
+!
+!
+crypto pki trustpoint s-terra_technological_trustpoint
+ revocation-check crl none
+crypto pki certificate chain s-terra_technological_trustpoint
+certificate 18E83EAC6432945F7CB72922AEA5147EC1DCDCCB
+30820417308202FFA003020102021418E83EAC6432945F7CB72922AEA5147EC1
+DCDCCB300D06092A864886F70D01010B05003081923115301306035504030C0C
+5465737420526F6F74204341310B3009060355040613025255310F300D060355
+04080C064D6F73636F773113301106035504070C0A5A656C656E6F6772616431
+143012060355040A0C0B532D546572726120435350310C300A060355040B0C03
+526E443122302006092A864886F70D0109011613766E6F76696B6F7640732D74
+657272612E7275301E170D3235303332303136353831395A170D343530333135
+3136353831395A3081923115301306035504030C0C5465737420526F6F742043
+41310B3009060355040613025255310F300D06035504080C064D6F73636F7731
+13301106035504070C0A5A656C656E6F6772616431143012060355040A0C0B53
+2D546572726120435350310C300A060355040B0C03526E443122302006092A86
+4886F70D0109011613766E6F76696B6F7640732D74657272612E727530820122
+300D06092A864886F70D01010105000382010F003082010A0282010100A5C0F4
+4C2404EF2CF55FF3B8E1C61EF766BC585CB1010200BAC81E52EAF4E6C694F679
+0AF98C63CA0E897F7A05892119EF5DF178D2A34A016AADB7D848A2887CC87484
+FC6395446936BADA8CD48F85CB9AD6FA28D5D2F4ED106B353A0FE2074EEE2599
+2882539CDB64EBBD40661A1F75C120FB66E0F5CD7E00D2F30E18B9C7314B6959
+D3288BA8F40D5B651FF636E89E1BFA56A1F46D7A21182F30CF31D5323A30352B
+FE16EF39D44215273C4054B8DDCE33791DF485CECF29DC23E5D1004AC31F2E73
+0DF76980E3AE9B3B0160D3C771D3D9955B872BB14FC88396EE7EEFA801D246D9
+A78F8FF786824B431E59F4EFFE08296DAD0CCF866FF11D5EABDD382D2B020301
+0001A3633061301D0603551D0E04160414DC4FF91826C25066E36D0FF7001C44
+632C06BF32301F0603551D23041830168014DC4FF91826C25066E36D0FF7001C
+44632C06BF32300F0603551D130101FF040530030101FF300E0603551D0F0101
+FF040403020186300D06092A864886F70D01010B0500038201010049698916E7
+FD63AD4BFC0DA9B49A4EB40D84D786EF46F08B9979B256B1580AE3DD0BA84F0F
+C5B63D368CB4BF6EF317D463C2C47B71ED5825A70C8ACFD6E3F5AEC55AC10E07
+B6D7B48FBC87F27F469792C942316746FF3305ABDABA9D301A69785996052788
+FC8DB070683FECEA112296568E6C14A8CD371C15FAFF2DB0C99DC172F705C1A5
+BC27665DD185AA93AA29F71C3F7BC84FE20D53597CA90147E2F1A5FEB3D9FFB1
+122A1EDB550D0E181001635B4C1EEFE61340675B30498E894853D465F8400F6E
+6FCBCBEF73B34416F32E282D2510E029ADB4FAAA73FF095C7580B0D831B0A3CB
+9CF6001DABBB147EA3BA5EB6DAFAF3A7035E856519FB25E21E738F
+
+quit
+!
+end
+
+```
+</details>
+
+#### NHRP
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+root@sterragate:~# cat /etc/opennhrp/opennhrp.conf
+interface mgre_0
+  map 10.10.10.100/24 172.16.100.2 register reregister-time 5
+  cisco-authentication secret
+  holding-time 90
+interface mgre_1
+  map 10.10.20.100/24 172.17.100.2 register reregister-time 5
+  cisco-authentication secret
+  holding-time 90
+
+```
+</details>
+
+#### Dynamic routing
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+frr version 9.0.4
+frr defaults traditional
+hostname sterragate
+log syslog informational
+hostname S-Terra-Spoke3
+service integrated-vtysh-config
+!
+router bgp 65555
+ bgp router-id 10.10.10.3
+ bgp log-neighbor-changes
+ timers bgp 3 9
+ neighbor 10.10.10.100 remote-as 65555
+ neighbor 10.10.20.100 remote-as 65555
+ !
+ address-family ipv4 unicast
+  network 192.168.3.0/24
+  neighbor 10.10.10.100 route-map LP-200-TO-HUB1-OUT out
+ exit-address-family
+exit
+!
+route-map LP-200-TO-HUB1-OUT permit 1
+ set local-preference 200
+exit
+!
+end
+```
+</details>
+
+### Linux:Ext_Spoke3_ISP1
+
+#### NAT
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+EXTIF1="ens2"
+EXTIF2="ens3"
+iptables -t nat -A POSTROUTING -s $LAN_RANGE -o $EXTIF1 -j SNAT --to-source $INET_IP1
+iptables -t nat -A POSTROUTING -s $LAN_RANGE -o $EXTIF2 -j SNAT --to-source $INET_IP2
+iptables -L -n -v -t nat
+### DNAT ###
+# IKE/500
+iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 500 -j DNAT --to-destination $IPSECGW:500
+iptables -t nat -A PREROUTING --dst $INET_IP2 -p udp --dport 500 -j DNAT --to-destination $IPSECGW:500
+# NAT-T/4500
+iptables -t nat -A PREROUTING --dst $INET_IP1 -p udp --dport 4500 -j DNAT --to-destination $IPSECGW:4500
+iptables -t nat -A PREROUTING --dst $INET_IP2 -p udp --dport 4500 -j DNAT --to-destination $IPSECGW:4500
+# GRE
+iptables -t nat -A PREROUTING --dst $INET_IP1 -p gre  -j DNAT --to-destination $IPSECGW
+iptables -t nat -A PREROUTING --dst $INET_IP2 -p gre  -j DNAT --to-destination $IPSECGW
+netfilter-persistent save
+```
+</details>
+
+#### Changeroutes
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+# Remote IP addresses that are used to determine the availability of the link by sending ICMP packets to them.
+# ICMP packets are always sent only from the main interface.
+# If you use multiple addresses, then they must be separated by a space.
+# Remote IP addresses must be reachible via routes that are set in RESERVE_ROUTES.
+IP_HOSTS="172.16.100.2"
+
+# Reserve routes that will be added to the route table (main by default).
+# If you use multiple routes, then they must be separated by a space.
+# Default route must be set as '0.0.0.0/0', route to ip host must be set with 32 bit mask (example: '1.1.1.1/32').
+RESERVE_ROUTES="0.0.0.0/0"
+
+# Watch for routes that are set in RESERVE_ROUTES.
+WATCH_RESERVE_ROUTES="true"
+
+# The name (in linux notation) of the interface that is connected to the main link.
+MAIN_INTERFACE="ens2"
+
+# If main interface gets network settings from DHCP server, this parameter must be set "true".
+MAIN_INTERFACE_DHCP="false"
+
+# The name (in linux notation) of the interface that is connected to the backup link.
+BACKUP_INTERFACE="ens3"
+
+# If backup interface gets network settings from DHCP server, this parameter must be set "true".
+BACKUP_INTERFACE_DHCP="false"
+
+# The IP address of gateway (or nexthop) for the main link.
+MAIN_GATEWAY="172.16.3.1"
+# The IP address of gateway (or nexthop) for the backup link.
+BACKUP_GATEWAY="172.17.3.1"
+
+# Reverse Path Filtering (rp_filter) in strict mode for all interfaces.
+# Enabled only if link through main interface is active.
+RPF_STRICT_MODE="true"
+
+# Number of failed ICMP requests to switch to backup link.
+FAILURE_PING_COUNT="10"
+
+# Interval in seconds between ICMP requests when the main link is up.
+# Value of option RESTORE_INTERVAL must be less WatchdogSec/2 in the systemd unit file.
+PING_INTERVAL="1"
+
+# Number of successes ICMP requests to switch to main link.
+RESTORE_PING_COUNT="10"
+
+# Interval in seconds between ICMP requests when the main link is down.
+# Value of option RESTORE_PING_INTERVAL must be less WatchdogSec/2 in the systemd unit file.
+RESTORE_PING_INTERVAL="1"
+
+# Print debug info to syslog.
+DEBUG="false"
+```
+</details>
+
+#### Dynamic routing
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+frr version 9.0.5
+frr defaults traditional
+hostname sterrarouter
+log syslog informational
+service integrated-vtysh-config
+!
+interface ens2
+ ip address 172.16.3.2/24
+exit
+!
+interface ens3
+ ip address 172.17.3.2/24
+exit
+!
+interface ens4
+ ip address 100.64.3.1/24
+exit
+!
+end
+
+```
+</details>
+
+
+
+### Spoke3_Host1
+
+<details>
+  <summary>Конфигурация</summary>
+
+```
+Spoke3_Host1> show
+
+NAME   IP/MASK              GATEWAY                             GATEWAY
+Spoke3_192.168.3.100/24     192.168.3.1
+       fe80::250:79ff:fe66:68cf/64
+
 
 ```
 </details>
 
 ## Конфигурации устройств филиала №4
 
-### R13
+### Spoke4_Host1
 
 <details>
   <summary>Конфигурация</summary>
@@ -1726,7 +2062,7 @@ Spoke2_192.168.2.100/24     192.168.2.1
 
 ## Конфигурации устройств филиала №5
 
-### R13
+### Spoke5_Host1
 
 <details>
   <summary>Конфигурация</summary>
