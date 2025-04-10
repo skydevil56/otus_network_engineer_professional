@@ -77,10 +77,8 @@ Cisco:Ext_Spoke5_ISP1 и Cisco:Ext_Spoke5_ISP2) в режиме основной
 
 ### S-Terra:Hub1
 
-#### IPsec/IKEv2/GRE
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация IPsec/IKEv2/GRE</summary>
 
 ```
 !
@@ -225,10 +223,8 @@ end
 ```
 </details>
 
-#### NHRP
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NHRP</summary>
 
 ```
 root@S-Terra-Hub1:~# cat /etc/opennhrp/opennhrp.conf
@@ -239,10 +235,8 @@ interface mgre_0
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.4
@@ -647,7 +641,7 @@ end
 ### Linux:Hub_Router
 
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.5
@@ -953,10 +947,8 @@ end
 
 ### S-Terra:Spoke1
 
-#### IPsec/IKEv2/GRE
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация IPsec/IKEv2/GRE</summary>
 
 ```
 !
@@ -1126,10 +1118,8 @@ end
 ```
 </details>
 
-#### NHRP
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NHRP</summary>
 
 ```
 root@S-Terra-Spoke1:~# cat /etc/opennhrp/opennhrp.conf
@@ -1145,11 +1135,8 @@ interface mgre_1
 ```
 </details>
 
-
-#### MultiWAN
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация MultiWAN</summary>
 
 ```
 root@S-Terra-Spoke1:~# cat /etc/multiwan/config.yaml
@@ -1206,10 +1193,8 @@ links_params:
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 !
@@ -1243,10 +1228,8 @@ end
 
 ### Linux:Ext_Spoke1_ISP1
 
-#### NAT
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NAT</summary>
 
 ```
 EXTIF="ens2"
@@ -1268,10 +1251,8 @@ netfilter-persistent save
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.5
@@ -1438,10 +1419,8 @@ Spoke1_192.168.1.100/24     192.168.1.1
 
 ### S-Terra:Spoke2
 
-#### IPsec/IKEv2/GRE
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация IPsec/IKEv2/GRE</summary>
 
 ```
 version 12.4
@@ -1595,10 +1574,8 @@ end
 ```
 </details>
 
-#### NHRP
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NHRP</summary>
 
 ```
 root@S-Terra-Spoke2:~# cat /etc/opennhrp/opennhrp.conf
@@ -1614,11 +1591,8 @@ interface mgre_1
 ```
 </details>
 
-
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.4
@@ -1651,10 +1625,8 @@ end
 
 ### Linux:Ext_Spoke2_ISP1
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.5
@@ -1704,10 +1676,8 @@ Spoke2_192.168.2.100/24     192.168.2.1
 
 ### S-Terra:Spoke3
 
-#### IPsec/IKEv2/GRE
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация IPsec/IKEv2/GRE</summary>
 
 ```
 !
@@ -1861,10 +1831,8 @@ end
 ```
 </details>
 
-#### NHRP
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NHRP</summary>
 
 ```
 root@sterragate:~# cat /etc/opennhrp/opennhrp.conf
@@ -1880,10 +1848,8 @@ interface mgre_1
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.4
@@ -1916,10 +1882,8 @@ end
 
 ### Linux:Ext_Spoke3_ISP1
 
-#### NAT
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NAT</summary>
 
 ```
 EXTIF1="ens2"
@@ -1941,10 +1905,8 @@ netfilter-persistent save
 ```
 </details>
 
-#### Changeroutes
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Changeroutes</summary>
 
 ```
 # Remote IP addresses that are used to determine the availability of the link by sending ICMP packets to them.
@@ -2001,10 +1963,8 @@ DEBUG="false"
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 frr version 9.0.5
@@ -2029,8 +1989,6 @@ end
 
 ```
 </details>
-
-
 
 ### Spoke3_Host1
 
@@ -2319,10 +2277,8 @@ end
 
 ### Linux:Ext_Spoke4_ISP1
 
-#### NAT
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация NAT</summary>
 
 ```
 EXTIF="ens2"
@@ -2343,10 +2299,8 @@ netfilter-persistent save
 ```
 </details>
 
-#### Dynamic routing
-
 <details>
-  <summary>Конфигурация</summary>
+  <summary>Конфигурация Dynamic routing</summary>
 
 ```
 !
