@@ -15,9 +15,26 @@
 
 ![a](media/final_1.PNG)
 
-## Схема для импорта в PNETlab
+## Необходимые файлы для сбора схемы в PnetLab
 
-[Схема для импорта в PNETlab](media/_Exports_pnetlab_export-20250319-232456.zip)
+1. [Схема для импорта в PnetLab](media/dmvpn_ipsec_ikev2_s-terra-cisco_pnetlab_export-20250411-122004.zip)
+
+### Бэкапы устройств "С-Терра Шлюз"
+
+Бэкапы сделаны при помощи команды:
+```
+simplebackup_mgr backup --no_upload
+```
+
+Для развертывания нужно использовать команду (ВАЖНО: до инициализации, после пройти инициализацию и перезагрузиться):
+```
+simplebackup_mgr restore -f <путь до бекапа>
+```
+
+1. [Бэкап устройства S-Terra:Hub1](/media/backup_2025-04-11_13-23-18_hub1.tar)
+1. [Бэкап устройства S-Terra:Spoke1](/media/backup_2025-04-11_13-26-53_spoke1.tar)
+1. [Бэкап устройства S-Terra:Spoke2](/media/backup_2025-04-11_13-29-22_spoke2.tar)
+1. [Бэкап устройства S-Terra:Spoke3](/media/backup_2025-04-11_13-31-27_spoke3.tar)
 
 ## Версии ПО
 
@@ -63,6 +80,10 @@ Cisco:Ext_Spoke5_ISP1 и Cisco:Ext_Spoke5_ISP2) в режиме основной
       - Защищаемая LAN подсеть - 192.168.5.0/24.
       - NBMA (WAN) адреса первого и второго Интернет провайдера, соответственно 172.16.5.2/24 и 172.17.5.2/24.
 
+## Презентация
+
+1. [Презентация](/media/dmvpn_ipsec_ikev2_s-terra-cisco.pptx)
+
 ## Используемые технологии
 
 1. DMVPN (mGRE/NHRP)
@@ -90,7 +111,9 @@ exit
 crypto pki authenticate CA
 
 -----BEGIN CERTIFICATE-----
-            < Тут нужно вставить сертификат CA в base64, брать на Hub1 в /root/ca/certs/ca.cert.cer >
+
+      < Тут нужно вставить сертификат CA в base64, брать на Hub1 в /root/ca/certs/ca.cert.cer >
+
 -----END CERTIFICATE-----
 
 
@@ -98,41 +121,40 @@ crypto pki enroll CA
 
 -----BEGIN CERTIFICATE REQUEST-----
 
-            < Тут будет запрос на локальный сертификат в base64 >
+      < Тут будет запрос на локальный сертификат в base64 >
 
 -----END CERTIFICATE REQUEST-----
 ```
 
-Запрос на локальный сертификат в base64 нужно принести на Hub1 в /root/ca/csr (тут должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
+Запрос на локальный сертификат в base64 нужно принести на Hub1 в `/root/ca/csr/<common name>.pem` (на Hub1 должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
 
 ```
 cd /root/ca/
 openssl ca -config openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in csr/<common name>.pem -out certs/<common name>.cer
 ```
 
-Локальный сертификат (/root/ca/certs/<common name>.cer) в формате base64 нужно импортировать на Cisco (после ввода команды будет предложено ввести локальный сертификат в формате base64):
+Локальный сертификат (`/root/ca/certs/<common name>.cer`) в формате base64 нужно импортировать на Cisco в соответствующий trustpoint (после ввода команды будет предложено ввести локальный сертификат в формате base64):
 
 ```
 crypto pki import CA certificate
 ```
 
-
 ### На "С-Терра Шлюз"
 
-Генерация закрытого ключа и запроса на сертификат (запрос будет в файле /root/<common name>.request в формате base64):
+Генерация закрытого ключа и запроса на сертификат (запрос будет в файле `/root/<common name>.request` в формате base64):
 
 ```
 cert_mgr create -subj "CN=<common name>" -RSA -2048 -fb64 /root/<common name>.request
 ```
 
-Запрос на локальный сертификат в base64 нужно принести на Hub1 в /root/ca/csr (тут должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
+Запрос на локальный сертификат в base64 нужно принести на Hub1 в `/root/ca/csr/<common name>.pem` (на Hub1 должен быть развернут выделенный root CA на базе OpenSSL, описано в разделе "Конфигурации устройств центрального офиса") и выпустить сертификат:
 
 ```
 cd /root/ca/
 openssl ca -config openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in csr/<common name>.pem -out certs/<common name>.cer
 ```
 
-Локальный сертификат (/root/ca/certs/<common name>.cer) и сертификат УЦ (/root/ca/certs/ca.cert.cer) в формате base64 нужно импортировать в базу Продукта "С-Терра Шлюз":
+Локальный сертификат (`/root/ca/certs/<common name>.cer`) и сертификат УЦ (/root/ca/certs/ca.cert.cer) в формате base64 нужно импортировать в базу Продукта "С-Терра Шлюз":
 
 ```
 cert_mgr import -l -f <common name>.cer
@@ -140,6 +162,8 @@ cert_mgr import -t -f ca.cert.cer
 ```
 
 ## Проверка работоспособности
+
+Проверка работоспособности представлена в презентации
 
 ## Конфигурации устройств центрального офиса
 
